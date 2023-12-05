@@ -4,10 +4,10 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "composeLaunchAction": "LaunchBrowser",
-      "composeLaunchServiceName": "pantry.plan.api",
+      "composeLaunchServiceName": "pantry.api",
       "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}/swagger",
       "serviceActions": {
-        "pantry.plan.api": "StartDebugging"
+        "pantry.api": "StartDebugging"
       }
     }
   }

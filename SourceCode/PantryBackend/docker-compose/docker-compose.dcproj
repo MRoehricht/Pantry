@@ -7,7 +7,7 @@
     <ProjectGuid>165e8350-90bc-48ce-9cbc-7f808826c4fc</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
-    <DockerServiceName>pantry.plan.api</DockerServiceName>
+    <DockerServiceName>pantry.api</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

@@ -5,8 +5,7 @@ namespace Pantry.Plan.Api.Database.Contexts;
 
 public class PlanContext : DbContext
 {
-    public PlanContext(DbContextOptions<PlanContext> options)
-        : base(options)
+    public PlanContext(DbContextOptions<PlanContext> options) : base(options)
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
