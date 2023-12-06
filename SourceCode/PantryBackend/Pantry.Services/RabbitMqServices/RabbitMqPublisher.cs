@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Json;
 
 namespace Pantry.Services.RabbitMqServices;
-internal class RabbitMqPublisher : IRabbitMqPublisher
+public class RabbitMqPublisher : IRabbitMqPublisher
 {
     private readonly ConnectionFactory _factory;
     private readonly IConnection _conn;

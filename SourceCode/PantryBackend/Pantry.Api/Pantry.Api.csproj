@@ -21,10 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configuration\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Pantry.Services\Pantry.Services.csproj" />
     <ProjectReference Include="..\Pantry.Shared\Pantry.Shared.csproj" />
   </ItemGroup>
 

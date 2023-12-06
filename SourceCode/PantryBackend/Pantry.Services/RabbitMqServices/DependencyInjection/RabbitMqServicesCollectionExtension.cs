@@ -13,8 +13,8 @@ public static class RabbitMqServicesCollectionExtension
         var password = configuration["RabbitMQ:Password"];
 
         var rabbitMqConfiguration = new RabbitMqConfiguration { Host = host, User = user, Password = password, Port = int.Parse(port) };
-
-        services.AddScoped<IRabbitMqPublisher>(_ => new RabbitMqPublisher(rabbitMqConfiguration));
+        services.AddSingleton<RabbitMqConfiguration>(rabbitMqConfiguration);
+        services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
         return services;
     }
 }

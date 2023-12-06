@@ -114,6 +114,10 @@ services:
       - DB_DB=pantry
       - DB_USER=pantry
       - DB_PASSWORD=pantry
+      - RABBITMQ__HOST=rabbitmq
+      - RABBITMQ__PORT=5672
+      - RABBITMQ__USER=pantry
+      - RABBITMQ__PASSWORD=pantry
     restart: always
     networks:
       - pantry-network

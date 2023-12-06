@@ -17,6 +17,6 @@ public class PantryContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<GoodEntity>().OwnsOne(e => e.Details, b => { b.ToJson(); });
-        modelBuilder.Entity<GoodEntity>().HasMany(e => e.PriceHistory).WithOne(b => b.GoodEntity);
+        modelBuilder.Entity<GoodEntity>().HasMany(e => e.PriceHistories).WithOne(b => b.GoodEntity);
     }
 }

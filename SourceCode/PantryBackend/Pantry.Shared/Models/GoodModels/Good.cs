@@ -1,9 +1,7 @@
-﻿namespace Pantry.Api.Database.Entities;
-
-public class GoodEntity
+﻿namespace Pantry.Shared.Models.GoodModels;
+public class Good
 {
     public Guid Id { get; set; }
-    public Guid OwnerId { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public double Amount { get; set; }
@@ -12,6 +10,6 @@ public class GoodEntity
     public long? EAN { get; set; }
     public double CurrentPrice { get; set; }
     public string? ShoppinglistName { get; set; }
-    public GoodDetailsEntity Details { get; set; } = new GoodDetailsEntity();
-    public List<PriceHistoryEntity> PriceHistories { get; set; } = new();
+    public GoodDetails Details { get; set; } = new GoodDetails();
+    public List<PriceHistory> PriceHistories { get; set; } = new();
 }

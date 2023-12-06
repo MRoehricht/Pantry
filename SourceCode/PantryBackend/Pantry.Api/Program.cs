@@ -2,6 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Endpoints;
+using Pantry.Recipe.Api.Configuration;
+using Pantry.Services.RabbitMqServices;
+using Pantry.Services.RabbitMqServices.DependencyInjection;
 
 namespace Pantry.Api;
 
@@ -23,11 +26,13 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddAuthorization();
+        builder.Services.AddRabbitMqServices(builder.Configuration);
+        builder.Services.AddAutoMapper(typeof(AutomapperConfiguratrion));
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())
