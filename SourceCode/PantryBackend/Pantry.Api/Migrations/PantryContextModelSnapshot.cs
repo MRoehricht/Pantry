@@ -129,7 +129,7 @@ namespace Pantry.Api.Migrations
             modelBuilder.Entity("Pantry.Api.Database.Entities.PriceHistoryEntity", b =>
                 {
                     b.HasOne("Pantry.Api.Database.Entities.GoodEntity", "GoodEntity")
-                        .WithMany("PriceHistory")
+                        .WithMany("PriceHistories")
                         .HasForeignKey("GoodEntityId");
 
                     b.Navigation("GoodEntity");
@@ -137,7 +137,7 @@ namespace Pantry.Api.Migrations
 
             modelBuilder.Entity("Pantry.Api.Database.Entities.GoodEntity", b =>
                 {
-                    b.Navigation("PriceHistory");
+                    b.Navigation("PriceHistories");
                 });
 #pragma warning restore 612, 618
         }
