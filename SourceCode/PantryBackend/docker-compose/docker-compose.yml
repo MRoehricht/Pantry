@@ -24,6 +24,8 @@ services:
     build:
       context: ../Pantry.Recipe.Api/.
       dockerfile: ../Pantry.Recipe.Api/Dockerfile
+    ports:
+      - 60100:8080
     environment:
       - DB_HOST=pantry.recipe.postgres
       - DB_PORT=5432
@@ -64,6 +66,8 @@ services:
     build:
       context: ../Pantry.Plan.Api/.
       dockerfile: ../Pantry.Plan.Api/Dockerfile
+    ports:
+      - 60200:8080
     environment:
       - DB_HOST=pantry.plan.postgres
       - DB_PORT=5432
@@ -108,6 +112,8 @@ services:
     build:
       context: ../Pantry.Api/.
       dockerfile: ../Pantry.Api/Dockerfile
+    ports:
+      - 60300:8080
     environment:
       - DB_HOST=pantry.postgres
       - DB_PORT=5432
@@ -151,6 +157,9 @@ services:
     build:
       context: ../Pantry.Scanner.Api/.
       dockerfile: ../Pantry.Scanner.Api/Dockerfile
+    ports:
+      - 60400:8080
+      - 60501:8081
     environment:
       - DB_HOST=pantry.scanner.postgres
       - DB_PORT=5432

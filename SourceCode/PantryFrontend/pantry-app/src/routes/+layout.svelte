@@ -41,7 +41,7 @@
 							</svg>
 						</span>
 					</button>
-					<strong class="text-xl uppercase">PANTRY</strong>
+					<a href="/"> <strong class="text-xl uppercase">PANTRY</strong></a>
 				</div>
 			</svelte:fragment>
 
