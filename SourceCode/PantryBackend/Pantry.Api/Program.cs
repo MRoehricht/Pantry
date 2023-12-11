@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Endpoints;
 using Pantry.Recipe.Api.Configuration;
@@ -10,6 +11,8 @@ namespace Pantry.Api;
 
 public class Program
 {
+    const string PANTRY_ORIGINS = "pantry";
+
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +36,18 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
+
+        
+        var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? Array.Empty<string>();
+        builder.Services.AddCors(opt => {
+            opt.AddPolicy(name: PANTRY_ORIGINS, policyBuilder => {
+                policyBuilder.WithOrigins(allowedOrigins)
+                    .AllowCredentials()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())
@@ -48,7 +63,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        app.UseCors(PANTRY_ORIGINS);
         app.UseAuthorization();
 
 

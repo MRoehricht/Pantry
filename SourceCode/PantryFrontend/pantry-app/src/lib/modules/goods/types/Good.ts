@@ -17,7 +17,15 @@ export type Good = {
 	currentPrice: number;
 	shoppinglistName: string;
 	details: GoodDetails;
-	priceHistories: any[];
+	//priceHistories: any[];
+};
+
+export type GoodOverview = {
+	id: string;
+	name: string;
+	description: string;
+	tags: string[];
+	ratings: number | null;
 };
 
 export type Goods = {

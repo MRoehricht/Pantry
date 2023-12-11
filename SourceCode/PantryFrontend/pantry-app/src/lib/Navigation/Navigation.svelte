@@ -18,9 +18,9 @@
 	<!-- --- -->
 	<AppRailAnchor
 		name="goods-tile"
-		title="goods-tile"
+		title="Warenübersicht"
 		href="/goods"
-		selected={$page.url.pathname === '/goods'}
+		selected={$page.url.pathname.startsWith('/goods')}
 		on:click={drawerClose}
 	>
 		<svelte:fragment slot="lead"><i class="fa-solid fa-shop fa-xl p-2"></i></svelte:fragment>
@@ -28,9 +28,9 @@
 	</AppRailAnchor>
 	<AppRailAnchor
 		name="plan-tile"
-		title="plan-tile"
+		title="Mahlzeitenplan"
 		href="/plan"
-		selected={$page.url.pathname === '/plan'}
+		selected={$page.url.pathname.startsWith('/plan')}
 		on:click={drawerClose}
 	>
 		<svelte:fragment slot="lead"
@@ -40,9 +40,9 @@
 	</AppRailAnchor>
 	<AppRailAnchor
 		name="recipes-tile"
-		title="recipes-tile"
+		title="Alle Rezepte"
 		href="/recipes"
-		selected={$page.url.pathname === '/recipes'}
+		selected={$page.url.pathname.startsWith('/recipes')}
 		on:click={drawerClose}
 	>
 		<svelte:fragment slot="lead">
@@ -52,9 +52,9 @@
 	</AppRailAnchor>
 	<AppRailAnchor
 		name="scanner-tile"
-		title="scanner-tile"
+		title="Waren ein- und ausgang"
 		href="/scanner"
-		selected={$page.url.pathname === '/scanner'}
+		selected={$page.url.pathname.startsWith('/scanner')}
 		on:click={drawerClose}
 	>
 		<svelte:fragment slot="lead">
@@ -64,7 +64,7 @@
 	</AppRailAnchor>
 	<!-- --- -->
 	<svelte:fragment slot="trail">
-		<AppRailAnchor href="/goods" title="Account" on:click={drawerClose}
+		<AppRailAnchor href="/" title="Account" on:click={drawerClose}
 			><i class="fa-solid fa-user fa-xl"></i>
 		</AppRailAnchor>
 	</svelte:fragment>

@@ -1,25 +1,24 @@
-import { json } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 
-/** @type {import('./$types').RequestHandler} */
-export async function GET() {
-	let data;
-	try {
-		data = await fetchGoodsData();
-	} catch (error) {
-		console.error('Error:', error);
-		return json('Fehler', { status: 500 });
-	}
+export async function DELETE({ request }): Promise<Response> {
+	const { id } = await request.json();
 
-	return json(data);
+	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/' + id, {
+		method: 'DELETE'
+	});
+
+	return response;
 }
 
-async function fetchGoodsData() {
-	const response = await fetch('http://localhost:56158/goods');
+export async function PUT({ request }): Promise<Response> {
+	const { good } = await request.json();
+	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/', {
+		method: 'PUT',
+		body: JSON.stringify(good),
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	});
 
-	if (!response.ok) {
-		throw new Error(`HTTP error! status: ${response.status}`);
-	}
-
-	const data = await response.json();
-	return data;
+	return response;
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Good } from '../types/Good';
+	import type { GoodOverview } from '../types/Good';
 
-	export let good: Good;
+	export let good: GoodOverview;
 </script>
 
 <a

@@ -11,5 +11,6 @@ public class AutomapperConfiguratrion : Profile
         CreateMap<GoodDetailsEntity, GoodDetails>().ReverseMap();
         CreateMap<GoodEntity, Good>().ReverseMap();
         CreateMap<PriceHistoryEntity, PriceHistory>().ReverseMap();
+        CreateMap<GoodEntity, GoodsOverview>().ForPath(dest => dest.Tags, act => act.MapFrom(src => src.Details.Tags));
     }
 }

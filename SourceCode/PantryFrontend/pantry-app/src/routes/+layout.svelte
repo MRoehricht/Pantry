@@ -6,7 +6,8 @@
 		initializeStores,
 		Drawer,
 		getDrawerStore,
-		LightSwitch
+		LightSwitch,
+		Modal
 	} from '@skeletonlabs/skeleton';
 	import Navigation from '$lib/Navigation/Navigation.svelte';
 
@@ -19,6 +20,7 @@
 	}
 </script>
 
+<Modal />
 <Drawer>
 	<h2 class="p-4">Navigation</h2>
 	<hr />
