@@ -11,10 +11,10 @@ export type Good = {
 	name: string;
 	description: string | null;
 	amount: number;
-	minimumAmount: number;
+	minimumAmount: number | null;
 	storageLocation: string | null;
 	ean: number | null;
-	currentPrice: number;
+	currentPrice: number | null;
 	shoppinglistName: string | null;
 	details: GoodDetails;
 	//priceHistories: any[];

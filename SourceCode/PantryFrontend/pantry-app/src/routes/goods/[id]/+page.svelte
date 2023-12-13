@@ -3,6 +3,12 @@
 	import type { ModalSettings, PopupSettings } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import type { Good, GoodRatingCreateDto } from '$lib/modules/goods/types/Good.js';
+	import StringItemLable from '$lib/components/ItemDetails/StringItemLabel.svelte';
+	import NumberItemLabel from '$lib/components/ItemDetails/NumberItemLabel.svelte';
+	import TextareaItemLabel from '$lib/components/ItemDetails/TextareaItemLabel.svelte';
+	import StringItemLabel from '$lib/components/ItemDetails/StringItemLabel.svelte';
+	import ItemTextLabel from '$lib/components/ItemDetails/ItemTextLabel.svelte';
+	import ItemNumberDetails from '$lib/components/ItemDetails/ItemNumberDetails.svelte';
 
 	export let data;
 	let good: Good;
@@ -20,10 +26,8 @@
 	};
 
 	async function deleteGood() {
-		const id = good.id;
-		const response: Response = await fetch('/goods/' + id, {
-			method: 'DELETE',
-			body: JSON.stringify({ id })
+		const response: Response = await fetch('/goods/' + good.id, {
+			method: 'DELETE'
 		});
 
 		if (!response.ok) {
@@ -110,6 +114,10 @@
 	}
 
 	let inEdidtMode = false;
+
+	$: if (good.amount == null) {
+		good.amount = 0;
+	}
 </script>
 
 <div class="grid grid-cols-2 md:grid-cols-2 gap-2">
@@ -167,112 +175,18 @@
 		readonly={!inEdidtMode}
 	/>
 </label>
-{#if !inEdidtMode && good.description != null && good.description.length > 0}
-	<label class="label">
-		<span>Beschreibung</span>
-		<textarea
-			class="textarea p-2"
-			rows="4"
-			placeholder="Beschreibung"
-			bind:value={good.description}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{:else if inEdidtMode}
-	<label class="label">
-		<span>Beschreibung</span>
-		<textarea
-			class="textarea p-2"
-			rows="4"
-			placeholder="Beschreibung"
-			bind:value={good.description}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{/if}
 
-<label class="label">
-	<span>Menge</span>
-	<input
-		class="input rounded-md p-2"
-		type="number"
-		placeholder="1"
-		bind:value={good.amount}
-		readonly={!inEdidtMode}
-	/>
-</label>
-
-{#if !inEdidtMode && good.minimumAmount != null && good.minimumAmount > 0}
-	<label class="label">
-		<span>Mindestbestand</span>
-		<input
-			class="input rounded-md p-2"
-			type="number"
-			placeholder="1"
-			bind:value={good.minimumAmount}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{:else if inEdidtMode}
-	<label class="label">
-		<span>Mindestbestand</span>
-		<input
-			class="input rounded-md p-2"
-			type="number"
-			placeholder="1"
-			bind:value={good.minimumAmount}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{/if}
-
-{#if !inEdidtMode && good.storageLocation != null && good.storageLocation.length > 0}
-	<label class="label">
-		<span>Lagerort</span>
-		<input
-			class="input rounded-md p-2"
-			type="text"
-			placeholder="Lagerort"
-			bind:value={good.storageLocation}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{:else if inEdidtMode}
-	<label class="label">
-		<span>Lagerort</span>
-		<input
-			class="input rounded-md p-2"
-			type="text"
-			placeholder="Lagerort"
-			bind:value={good.storageLocation}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{/if}
-
-{#if !inEdidtMode && good.ean != null && good.ean > 0}
-	<label class="label">
-		<span>EAN</span>
-		<input
-			class="input rounded-md p-2"
-			type="number"
-			placeholder="100000000"
-			bind:value={good.ean}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{:else if inEdidtMode}
-	<label class="label">
-		<span>EAN</span>
-		<input
-			class="input rounded-md p-2"
-			type="number"
-			placeholder="100000000"
-			bind:value={good.ean}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{/if}
+<ItemTextLabel bind:value={good.name} label="Name" {inEdidtMode} />
+<TextareaItemLabel bind:value={good.description} label="Beschreibung" {inEdidtMode} />
+<ItemNumberDetails bind:value={good.amount} label="Menge" {inEdidtMode} placeholder="1" />
+<NumberItemLabel
+	bind:value={good.minimumAmount}
+	label="Mindestbestand"
+	{inEdidtMode}
+	placeholder="1"
+/>
+<StringItemLabel bind:value={good.storageLocation} label="Lagerort" {inEdidtMode} />
+<NumberItemLabel bind:value={good.ean} label="EAN" {inEdidtMode} placeholder="9846568745" />
 
 {#if !inEdidtMode && good.currentPrice != null && good.currentPrice > 0}
 	<p>Derzeitiger Preis</p>
@@ -300,29 +214,7 @@
 	</div>
 {/if}
 
-{#if !inEdidtMode && good.shoppinglistName != null && good.shoppinglistName.length > 0}
-	<label class="label">
-		<span>Einkaufslistenname</span>
-		<input
-			class="input rounded-md p-2"
-			type="text"
-			placeholder="Einkaufslistenname"
-			value={good.shoppinglistName}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{:else if inEdidtMode}
-	<label class="label">
-		<span>Einkaufslistenname</span>
-		<input
-			class="input rounded-md p-2"
-			type="text"
-			placeholder="Einkaufslistenname"
-			value={good.shoppinglistName}
-			readonly={!inEdidtMode}
-		/>
-	</label>
-{/if}
+<StringItemLabel bind:value={good.shoppinglistName} label="Einkaufslistenname" {inEdidtMode} />
 
 {#if !inEdidtMode && good.details.tags != null && good.details.tags.length > 0}
 	<div>

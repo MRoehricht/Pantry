@@ -10,7 +10,7 @@ export type Ingredient = {
 	name: string;
 	countOff: number;
 	unit: string;
-	pantryItemId: string;
+	pantryItemId: string | null;
 };
 
 export type RecipeDetails = {
@@ -30,4 +30,10 @@ export type RecipeOverview = {
 export type RecipeCreateDto = {
 	name: string;
 	description: string | null;
+};
+
+export type IngredientCreateDto = {
+	name: string | null;
+	recipeId: string;
+	ingredient: Ingredient;
 };

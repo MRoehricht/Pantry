@@ -17,7 +17,7 @@ public static class RecipeEndpoint
         group.MapGet("/{id}", GetRecipe).WithName("GetRecipeById").Produces<Shared.Models.RecipeModels.Recipe>().Produces(StatusCodes.Status404NotFound).WithOpenApi();
         group.MapPost("/", CreateRecipe).WithName("CreateRecipe").Produces<Shared.Models.RecipeModels.Recipe>(StatusCodes.Status201Created).WithOpenApi();
         group.MapPut("/", UpdateRecipe).WithName("UpdateRecipe").Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound).WithOpenApi();
-        group.MapDelete("/", DeleteRecipe).WithName("DeleteRecipe").Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound).WithOpenApi();
+        group.MapDelete("/{id}", DeleteRecipe).WithName("DeleteRecipe").Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound).WithOpenApi();
 
         return group;
     }
@@ -43,6 +43,7 @@ public static class RecipeEndpoint
         {
             context.Recipes.Remove(recipe);
             await context.SaveChangesAsync();
+            return Results.NoContent();
         }
 
         return Results.NotFound();
@@ -70,6 +71,12 @@ public static class RecipeEndpoint
 
     private static async Task<IResult> GetRecipeOverview(IMapper mapper, RecipeContext context) {
         var recipes = await context.Recipes.AsNoTracking().ToListAsync();
+
+        foreach (var recipe in recipes) {
+            if (recipe.Description is { Length: > 50 })
+                recipe.Description = recipe.Description[..50];
+        }
+
         return Results.Ok(mapper.Map<IEnumerable<RecipeOverview>>(recipes));
     }
 

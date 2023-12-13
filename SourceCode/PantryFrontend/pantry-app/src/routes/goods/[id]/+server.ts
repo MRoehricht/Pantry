@@ -1,8 +1,7 @@
 import { env } from '$env/dynamic/private';
 
-export async function DELETE({ request }): Promise<Response> {
-	const { id } = await request.json();
-	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/' + id, {
+export async function DELETE({ params }): Promise<Response> {
+	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/' + params.id, {
 		method: 'DELETE'
 	});
 

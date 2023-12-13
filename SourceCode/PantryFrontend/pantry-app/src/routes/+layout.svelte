@@ -20,9 +20,11 @@
 	}
 
 	import RatingModal from '$lib/components/Modals/RatingModal.svelte';
+	import IngredientEditModal from '$lib/components/Modals/IngredientEditModal.svelte';
 
 	const modalRegistry: Record<string, ModalComponent> = {
-		RatingModal: { ref: RatingModal }
+		RatingModal: { ref: RatingModal },
+		IngredientEditModal: { ref: IngredientEditModal }
 	};
 </script>
 

@@ -2,6 +2,7 @@ import { env } from '$env/dynamic/private';
 
 export async function PUT({ request }): Promise<Response> {
 	const { recipe } = await request.json();
+	console.log(recipe);
 	const response = await fetch(env.PRIVATE_RECIPE_API_URL + '/recipes/', {
 		method: 'PUT',
 		body: JSON.stringify(recipe),
