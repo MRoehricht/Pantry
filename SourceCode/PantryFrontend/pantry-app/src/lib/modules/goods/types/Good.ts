@@ -3,19 +3,19 @@ export type GoodDetails = {
 	purchaseLocations: string[];
 	ratings: number[];
 	totalPurchaseNumber: number;
-	daysUntilConsume: number;
+	daysUntilConsume: number | null;
 };
 
 export type Good = {
 	id: string;
 	name: string;
-	description: string;
+	description: string | null;
 	amount: number;
 	minimumAmount: number;
-	storageLocation: string;
-	ean: number;
+	storageLocation: string | null;
+	ean: number | null;
 	currentPrice: number;
-	shoppinglistName: string;
+	shoppinglistName: string | null;
 	details: GoodDetails;
 	//priceHistories: any[];
 };
@@ -25,9 +25,18 @@ export type GoodOverview = {
 	name: string;
 	description: string;
 	tags: string[];
-	ratings: number | null;
+	rating: number | null;
 };
 
 export type Goods = {
 	goods: Good[];
+};
+
+export type GoodCreateDto = {
+	name: string;
+};
+
+export type GoodRatingCreateDto = {
+	goodId: string;
+	rating: number;
 };

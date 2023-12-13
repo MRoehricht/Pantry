@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Database.Entities;
 using Pantry.Shared.Models.GoodModels;
+using Pantry.Shared.Models.GoodModels.MealRequestModels;
 
 namespace Pantry.Api.Endpoints;
 
@@ -47,21 +48,21 @@ public static class GoodsEndpoint
         entity.EAN = good.EAN;
         entity.CurrentPrice = good.CurrentPrice;
         entity.ShoppinglistName = good.ShoppinglistName;
+        entity.Details.Tags = good.Details.Tags;
 
         await context.SaveChangesAsync();
 
         return Results.NoContent();
     }
 
-    private static async Task<IResult> CreateGood(IMapper mapper, PantryContext context, GoodEntity good)
-    {
-        good.Id = Guid.NewGuid();
+    private static async Task<IResult> CreateGood(IMapper mapper, PantryContext context, GoodCreateDto goodCreateDto) {
+        var entity = new GoodEntity() {Id = Guid.NewGuid(), Name = goodCreateDto.Name};
 
-        await context.Goods.AddAsync(good);
+        await context.Goods.AddAsync(entity);
         await context.SaveChangesAsync();
 
 
-        return Results.Created($"/meals/{good.Id}", mapper.Map<Good>(good));
+        return Results.Created($"/meals/{entity.Id}", mapper.Map<Good>(entity));
     }
 
     private static async Task<IResult> GetGood(IMapper mapper, PantryContext context, Guid id)

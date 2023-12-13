@@ -1,10 +1,10 @@
 import { env } from '$env/dynamic/private';
 
 export async function PUT({ request }): Promise<Response> {
-	const { good } = await request.json();
-	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/', {
+	const { recipe } = await request.json();
+	const response = await fetch(env.PRIVATE_RECIPE_API_URL + '/recipes/', {
 		method: 'PUT',
-		body: JSON.stringify(good),
+		body: JSON.stringify(recipe),
 		headers: {
 			'Content-Type': 'application/json'
 		}
@@ -15,7 +15,7 @@ export async function PUT({ request }): Promise<Response> {
 
 export async function POST({ request }): Promise<Response> {
 	const { createDto } = await request.json();
-	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/', {
+	const response = await fetch(env.PRIVATE_RECIPE_API_URL + '/recipes/', {
 		method: 'POST',
 		body: JSON.stringify(createDto),
 		headers: {
@@ -27,6 +27,6 @@ export async function POST({ request }): Promise<Response> {
 }
 
 export async function GET(): Promise<Response> {
-	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/overview');
+	const response = await fetch(env.PRIVATE_RECIPE_API_URL + '/recipes/overview');
 	return response;
 }

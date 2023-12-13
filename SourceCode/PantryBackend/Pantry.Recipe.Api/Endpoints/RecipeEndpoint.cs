@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Database.Entities;
+using Pantry.Shared.Models.RecipeModels;
 using Pantry.Shared.Models.RecipeModels.RecipeRequestModels;
 
 namespace Pantry.Recipe.Api.Endpoints;
@@ -11,8 +12,9 @@ public static class RecipeEndpoint
 {
     public static RouteGroupBuilder MapRecipesEndpoint(this RouteGroupBuilder group)
     {
-        group.MapGet("/", GetRecipes).WithName("GetRecipes").Produces<IList<Shared.Models.RecipeModels.Recipe>>(StatusCodes.Status200OK).WithOpenApi();
-        group.MapGet("/{id}", GetRecipe).WithName("GetRecipeById").Produces<Shared.Models.RecipeModels.Recipe>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).WithOpenApi();
+        group.MapGet("/overview/", GetRecipeOverview).WithName("GetRecipeOverview").Produces<IList<RecipeOverview>>().WithOpenApi();
+        group.MapGet("/", GetRecipes).WithName("GetRecipes").Produces<IList<Shared.Models.RecipeModels.Recipe>>().WithOpenApi();
+        group.MapGet("/{id}", GetRecipe).WithName("GetRecipeById").Produces<Shared.Models.RecipeModels.Recipe>().Produces(StatusCodes.Status404NotFound).WithOpenApi();
         group.MapPost("/", CreateRecipe).WithName("CreateRecipe").Produces<Shared.Models.RecipeModels.Recipe>(StatusCodes.Status201Created).WithOpenApi();
         group.MapPut("/", UpdateRecipe).WithName("UpdateRecipe").Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound).WithOpenApi();
         group.MapDelete("/", DeleteRecipe).WithName("DeleteRecipe").Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound).WithOpenApi();
@@ -66,9 +68,15 @@ public static class RecipeEndpoint
         return Results.Created($"/recipes/{entity.Id}", mapper.Map<Shared.Models.RecipeModels.Recipe>(entity));
     }
 
+    private static async Task<IResult> GetRecipeOverview(IMapper mapper, RecipeContext context) {
+        var recipes = await context.Recipes.AsNoTracking().ToListAsync();
+        return Results.Ok(mapper.Map<IEnumerable<RecipeOverview>>(recipes));
+    }
+
+
     private static async Task<IResult> GetRecipes(IMapper mapper, RecipeContext context)
     {
-        var recipes = await context.Recipes.ToListAsync();
+        var recipes = await context.Recipes.AsNoTracking().ToListAsync();
         return Results.Ok(mapper.Map<IEnumerable<Shared.Models.RecipeModels.Recipe>>(recipes));
     }
 }

@@ -3,7 +3,7 @@ export type Recipe = {
 	name: string;
 	description: string;
 	ingredients: Ingredient[];
-	details: Details;
+	details: RecipeDetails;
 };
 
 export type Ingredient = {
@@ -13,8 +13,21 @@ export type Ingredient = {
 	pantryItemId: string;
 };
 
-export type Details = {
+export type RecipeDetails = {
 	reviews: number[];
 	cookedOn: string[];
 	tags: string[];
+};
+
+export type RecipeOverview = {
+	id: string;
+	name: string;
+	description: string;
+	tags: string[];
+	rating: number | null;
+};
+
+export type RecipeCreateDto = {
+	name: string;
+	description: string | null;
 };

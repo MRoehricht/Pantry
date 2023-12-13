@@ -2,7 +2,7 @@
 	import { InputChip, popup, Modal, getModalStore, storePopup } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, PopupSettings } from '@skeletonlabs/skeleton';
 	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	import type { Good } from '$lib/modules/goods/types/Good.js';
+	import type { Good, GoodRatingCreateDto } from '$lib/modules/goods/types/Good.js';
 
 	export let data;
 	let good: Good;
@@ -21,7 +21,7 @@
 
 	async function deleteGood() {
 		const id = good.id;
-		const response: Response = await fetch('/goods', {
+		const response: Response = await fetch('/goods/' + id, {
 			method: 'DELETE',
 			body: JSON.stringify({ id })
 		});
@@ -71,6 +71,39 @@
 		}
 	};
 
+	function showRatingModal() {
+		const modal: ModalSettings = {
+			title: 'Ware bewerten',
+			body: 'Bewerten Sie diese Ware.',
+			buttonTextCancel: 'Abbrechen',
+			type: 'component',
+			component: 'RatingModal',
+			response: async (rating: number) => {
+				if (rating && rating > 0) {
+					const goodRatingCreateDto: GoodRatingCreateDto = {
+						goodId: good.id,
+						rating: rating
+					};
+					const response: Response = await fetch('/goods/' + good.id, {
+						method: 'POST',
+						body: JSON.stringify({ goodRatingCreateDto })
+					});
+
+					if (!response.ok) {
+						const modalSettingPutError: ModalSettings = {
+							type: 'alert',
+							title: 'Fehler',
+							body: 'Beim Speichern ist ein Fehler aufgetreten.'
+						};
+						modalStore.trigger(modalSettingPutError);
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+				}
+			}
+		};
+		modalStore.trigger(modal);
+	}
+
 	function resetGood() {
 		good = JSON.parse(goodBackUp);
 		inEdidtMode = false;
@@ -97,6 +130,10 @@
 
 <div class="card p-4 max-w-sm" data-popup="popupClick">
 	<div class="grid grid-cols-1 gap-2">
+		<button id="rate" class="btn variant-filled-primary" on:click={showRatingModal}
+			>Bewerten</button
+		>
+
 		{#if inEdidtMode == true}
 			<button id="cancel" class="btn variant-filled-surface" on:click={resetGood}
 				>Abbrechen</button
@@ -287,7 +324,7 @@
 	</label>
 {/if}
 
-{#if !inEdidtMode && good.description != null && good.description.length > 0}
+{#if !inEdidtMode && good.details.tags != null && good.details.tags.length > 0}
 	<div>
 		{#each good.details.tags as tag}
 			<span class="chip variant-filled m-2">{tag}</span>

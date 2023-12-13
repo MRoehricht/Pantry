@@ -68,6 +68,7 @@ public class Program
 
 
         app.MapGroup("/goods").MapGoodsEndpoint();
+        app.MapGroup("/goodratings").MapGoodRatingsEndpoint();
         app.Run();
     }
 }

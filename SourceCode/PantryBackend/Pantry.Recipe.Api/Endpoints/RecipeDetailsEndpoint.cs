@@ -8,7 +8,7 @@ public static class RecipeDetailsEndpoint
 {
     public static RouteGroupBuilder MapRecipeDetailsEndpoint(this RouteGroupBuilder group)
     {
-        group.MapGet("/{recipeId}", GetRecipeDetails).WithName("GetRecipeDetails").Produces<RecipeDetails>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).WithOpenApi();
+        group.MapGet("/{recipeId}", GetRecipeDetails).WithName("GetRecipeDetails").Produces<RecipeDetails>().Produces(StatusCodes.Status404NotFound).WithOpenApi();
         group.MapPost("/review/{recipeId}", CreateReview).WithName("CreateReview").Produces<RecipeDetails>(StatusCodes.Status201Created).WithOpenApi();
         group.MapPost("/cookedon/{recipeId}", CreateCookedOn).WithName("CreateCookedOn").Produces<RecipeDetails>(StatusCodes.Status201Created).WithOpenApi();
 

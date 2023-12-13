@@ -7,20 +7,27 @@
 		Drawer,
 		getDrawerStore,
 		LightSwitch,
-		Modal
+		Modal,
+		Toast,
+		type ModalComponent
 	} from '@skeletonlabs/skeleton';
-	import Navigation from '$lib/Navigation/Navigation.svelte';
+	import Navigation from '$lib/components/Navigation/Navigation.svelte';
 
 	initializeStores();
-
 	const drawerStore = getDrawerStore();
-
 	function drawerOpen(): void {
 		drawerStore.open({});
 	}
+
+	import RatingModal from '$lib/components/Modals/RatingModal.svelte';
+
+	const modalRegistry: Record<string, ModalComponent> = {
+		RatingModal: { ref: RatingModal }
+	};
 </script>
 
-<Modal />
+<Toast />
+<Modal components={modalRegistry} />
 <Drawer>
 	<h2 class="p-4">Navigation</h2>
 	<hr />
