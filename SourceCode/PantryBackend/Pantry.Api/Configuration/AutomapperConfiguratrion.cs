@@ -17,9 +17,8 @@ public class AutomapperConfiguratrion : Profile
         CreateMap<GoodEntity, GoodRating>()
             .ForPath(dest => dest.Ratings, act => act.MapFrom(src => src.Details.Ratings))
             .ForPath(dest => dest.GoodId, act => act.MapFrom(src => src.Id));
+        CreateMap<GoodEntity, GoodSuggestion>().ReverseMap();
     }
-
-    
 }
 
 public class AverageResolver : IValueResolver<GoodEntity, GoodsOverview, double?> {

@@ -24,7 +24,12 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Pantry.Services\Pantry.Services.csproj" />
     <ProjectReference Include="..\Pantry.Shared\Pantry.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Database\Repositories\" />
   </ItemGroup>
 
 </Project>

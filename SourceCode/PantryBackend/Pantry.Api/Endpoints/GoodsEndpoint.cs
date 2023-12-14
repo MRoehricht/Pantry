@@ -2,8 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Database.Entities;
+using Pantry.Services.RabbitMqServices;
 using Pantry.Shared.Models.GoodModels;
 using Pantry.Shared.Models.GoodModels.MealRequestModels;
+using Pantry.Shared.Models.MessageModes;
+using Pantry.Shared.Models.RecipeModels;
 
 namespace Pantry.Api.Endpoints;
 
@@ -34,11 +37,16 @@ public static class GoodsEndpoint
         return Results.NoContent();
     }
 
-    private static async Task<IResult> UpdateGood(PantryContext context, GoodEntity good)
+    private static async Task<IResult> UpdateGood(IRabbitMqPublisher rabbitMqPublisher, PantryContext context, GoodEntity good)
     {
         var entity = await context.Goods.FindAsync(good.Id);
 
         if (entity == null) return Results.NotFound();
+
+        if (entity.Name != good.Name) {
+            var message = new Ingredient { PantryItemId = entity.Id, Name = good.Name };
+            rabbitMqPublisher.SendMessage(message, MessageType.UpdateIngredientName);
+        }
 
         entity.Name = good.Name;
         entity.Description = good.Description;

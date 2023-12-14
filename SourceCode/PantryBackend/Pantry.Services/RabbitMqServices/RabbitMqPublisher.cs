@@ -1,4 +1,5 @@
 ﻿using Pantry.Services.RabbitMqServices.Model;
+using Pantry.Shared.Models.MessageModes;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
@@ -15,13 +16,26 @@ public class RabbitMqPublisher : IRabbitMqPublisher
         _factory = new ConnectionFactory() { HostName = configuration.Host, Port = configuration.Port, UserName = configuration.User, Password = configuration.Password };
         _conn = _factory.CreateConnection();
         _channel = _conn.CreateModel();
-        _channel.QueueDeclare(queue: "Pantry", durable: false, exclusive: false, autoDelete: false, arguments: null);
+        _channel.QueueDeclare(queue: configuration.QueueName, durable: false, exclusive: false, autoDelete: false, arguments: null);
     }
 
-    public void SendMessage<T>(T message)
-    {
-        var json = JsonSerializer.Serialize(message);
+    public void SendMessage<T>(T message, MessageType messageType = MessageType.None) {
+        var messageObject = new Message<T> { Type = messageType, Content = message };
+        var json = JsonSerializer.Serialize(messageObject);
         var body = Encoding.UTF8.GetBytes(json);
-        _channel.BasicPublish(exchange: "", routingKey: "Pantry", basicProperties: null, body: body);
+        _channel.BasicPublish(exchange: "", routingKey: GetQueueName(messageType), basicProperties: null, body: body);
+    }
+
+    private string GetQueueName(MessageType messageType) {
+        switch (messageType) {
+            case MessageType.None:
+                return "Pantry";
+            case MessageType.RegisterGood:
+                return "Pantry.Api";
+            case MessageType.UpdateIngredientName:
+                return "Pantry.Recipe.Api";
+            default:
+                throw new ArgumentOutOfRangeException(nameof(messageType), messageType, null);
+        }
     }
 }

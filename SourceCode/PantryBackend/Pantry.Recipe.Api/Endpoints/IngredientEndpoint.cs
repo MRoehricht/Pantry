@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Database.Entities;
+using Pantry.Services.RabbitMqServices;
+using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
 
 namespace Pantry.Recipe.Api.Endpoints;
@@ -48,12 +50,18 @@ public static class IngredientEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> CreateIngredient(IMapper mapper, RecipeContext context, Guid recipeId, Ingredient ingredient)
+    private static async Task<IResult> CreateIngredient(IMapper mapper, IRabbitMqPublisher rabbitMqPublisher, RecipeContext context, Guid recipeId, Ingredient ingredient)
     {
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null)
         {
             var entity = mapper.Map<IngredientEntity>(ingredient);
+            if (entity.PantryItemId is null) {
+                entity.PantryItemId = Guid.NewGuid();
+                var messag = mapper.Map<Ingredient>(entity);
+                rabbitMqPublisher.SendMessage(messag, MessageType.RegisterGood);
+            }
+
             recipe.Ingredients.Add(entity);
             await context.SaveChangesAsync();
 

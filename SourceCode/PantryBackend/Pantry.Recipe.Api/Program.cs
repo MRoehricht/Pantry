@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Pantry.Recipe.Api.Configuration;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Endpoints;
+using Pantry.Recipe.Api.Services.RabbitMqConsumerServices;
+using Pantry.Services.RabbitMqServices;
+using Pantry.Services.RabbitMqServices.DependencyInjection;
 
 namespace Pantry.Recipe.Api;
 
@@ -28,6 +31,10 @@ public class Program
             var postgresPassword = builder.Configuration["DB_PASSWORD"];
             optionsAction.UseNpgsql($"host={postgresHost};port={postgresPort};database={postgresDatabase};username={postgresUser};password={postgresPassword};");
         });
+        builder.Services.AddRabbitMqServices(builder.Configuration);
+        builder.Services.AddTransient<IRabbitMqConsumerService, UpdateIngredientNameConsumerService>();
+        builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
+
 
         var app = builder.Build();
 

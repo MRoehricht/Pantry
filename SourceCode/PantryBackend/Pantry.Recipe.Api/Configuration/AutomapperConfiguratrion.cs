@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Pantry.Recipe.Api.Database.Entities;
+using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
 using Pantry.Shared.Models.RecipeModels.RecipeRequestModels;
 

@@ -5,7 +5,7 @@ public class Ingredient
 
     public double CountOff { get; set; }
 
-    public required string Unit { get; set; }
+    public string Unit { get; set; }
 
     public Guid? PantryItemId { get; set; }
 }

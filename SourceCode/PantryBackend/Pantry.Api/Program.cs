@@ -2,10 +2,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Pantry.Api.Database.Contexts;
+using Pantry.Api.Database.Repositories;
 using Pantry.Api.Endpoints;
+using Pantry.Api.Services.RabbitMqConsumerServices;
 using Pantry.Recipe.Api.Configuration;
 using Pantry.Services.RabbitMqServices;
 using Pantry.Services.RabbitMqServices.DependencyInjection;
+using Pantry.Shared.Models.MessageModes;
+using Pantry.Shared.Models.RecipeModels;
+using Pantry.Services.RabbitMqServices;
 
 namespace Pantry.Api;
 
@@ -35,6 +40,10 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        builder.Services.AddLogging();
+        builder.Services.AddTransient<IGoodRepository, GoodRepository>();
+        builder.Services.AddTransient<IRabbitMqConsumerService, RegisterGoodConsumerService>();
+
         builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
 
         
@@ -69,6 +78,7 @@ public class Program
 
         app.MapGroup("/goods").MapGoodsEndpoint();
         app.MapGroup("/goodratings").MapGoodRatingsEndpoint();
+        app.MapGroup("/suggestions").MapSuggestionEndpoints();
         app.Run();
     }
 }

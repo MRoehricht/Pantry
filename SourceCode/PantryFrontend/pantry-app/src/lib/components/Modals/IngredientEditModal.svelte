@@ -1,7 +1,16 @@
 <script lang="ts">
-	import type { SvelteComponent } from 'svelte';
-	import { Ratings, getModalStore, type ModalSettings } from '@skeletonlabs/skeleton';
+	import { onMount, type SvelteComponent } from 'svelte';
+	import {
+		Ratings,
+		getModalStore,
+		type ModalSettings,
+		type PopupSettings,
+		Autocomplete,
+		type AutocompleteOption,
+		popup
+	} from '@skeletonlabs/skeleton';
 	import type { Ingredient } from '$lib/modules/recipe/types/Recipe';
+	import type { GoodSuggestion } from '$lib/modules/goods/types/Good';
 
 	// Props
 	/** Exposes parent props to this component. */
@@ -51,6 +60,36 @@
 		};
 		submitButtonLabel = 'Erstellen';
 	}
+
+	let goodSuggestions: GoodSuggestion[];
+	type GoodOption = AutocompleteOption<string, { healthy: boolean }>;
+	let goodOptions: GoodOption[];
+	onMount(async () => {
+		const response: Response = await fetch('/goods/suggestions', {
+			method: 'GET'
+		});
+
+		goodSuggestions = await response.json();
+		console.log(goodSuggestions);
+
+		goodOptions = goodSuggestions.map((suggestion) => {
+			return {
+				label: suggestion.name,
+				value: suggestion.id
+			};
+		});
+	});
+
+	let popupSettings: PopupSettings = {
+		event: 'focus-click',
+		target: 'popupAutocomplete',
+		placement: 'bottom'
+	};
+
+	function onPopupDemoSelect(event: CustomEvent<GoodOption>): void {
+		ingredient.name = event.detail.label;
+		ingredient.pantryItemId = event.detail.value;
+	}
 </script>
 
 <!-- @component This example creates a simple form modal. -->
@@ -63,12 +102,22 @@
 			<label class="label mb-2">
 				<span>Name</span>
 				<input
-					class="input rounded-md p-2"
+					class="input rounded-md p-2 autocomplete"
+					name="autocomplete-search"
 					type="text"
 					bind:value={ingredient.name}
 					placeholder="Name..."
 					minlength="1"
+					use:popup={popupSettings}
 				/>
+				<div data-popup="popupAutocomplete" class="card">
+					<Autocomplete
+						bind:input={ingredient.name}
+						options={goodOptions}
+						on:selection={onPopupDemoSelect}
+						limit={5}
+					/>
+				</div>
 				{#if showNameError}
 					<span class="text-error-500">Bitte vergeben Sie einen Namen.</span>
 				{/if}

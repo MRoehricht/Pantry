@@ -165,17 +165,6 @@
 	<div class="arrow bg-surface-100-800-token" />
 </div>
 
-<label class="label">
-	<span>Name</span>
-	<input
-		class="input rounded-md p-2"
-		type="text"
-		placeholder="Name"
-		bind:value={good.name}
-		readonly={!inEdidtMode}
-	/>
-</label>
-
 <ItemTextLabel bind:value={good.name} label="Name" {inEdidtMode} />
 <TextareaItemLabel bind:value={good.description} label="Beschreibung" {inEdidtMode} />
 <ItemNumberDetails bind:value={good.amount} label="Menge" {inEdidtMode} placeholder="1" />

@@ -16,7 +16,6 @@
 	});
 </script>
 
-// @ts-ignore
 <label class="label">
 	<span>{label}</span>
 	<textarea
@@ -27,7 +26,10 @@
 		placeholder={label}
 		bind:value
 		contenteditable
-		on:input={(e) => autoGrow(e.target)}
+		on:input={(e) => {
+			// @ts-ignore
+			autoGrow(e.target);
+		}}
 		readonly={!inEdidtMode}
 	/>
 </label>

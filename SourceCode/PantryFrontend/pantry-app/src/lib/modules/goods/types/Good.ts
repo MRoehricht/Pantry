@@ -40,3 +40,8 @@ export type GoodRatingCreateDto = {
 	goodId: string;
 	rating: number;
 };
+
+export interface GoodSuggestion {
+	id: string;
+	name: string;
+}

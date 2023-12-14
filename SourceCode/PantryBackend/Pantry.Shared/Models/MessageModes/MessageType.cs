@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Pantry.Shared.Models.MessageModes;
 
-namespace Pantry.Shared.Models.MessageModes;
-internal class MessageType
+public enum MessageType : int
 {
+    None = 0,
+    RegisterGood = 1,
+    UpdateIngredientName = 2,
 }

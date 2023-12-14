@@ -11,8 +11,9 @@ public static class RabbitMqServicesCollectionExtension
         var port = configuration["RabbitMQ:Port"];
         var user = configuration["RabbitMQ:User"];
         var password = configuration["RabbitMQ:Password"];
+        var queueName = configuration["RabbitMQ:QueueName"];
 
-        var rabbitMqConfiguration = new RabbitMqConfiguration { Host = host, User = user, Password = password, Port = int.Parse(port) };
+        var rabbitMqConfiguration = new RabbitMqConfiguration { Host = host, User = user, Password = password, Port = int.Parse(port), QueueName = queueName };
         services.AddSingleton<RabbitMqConfiguration>(rabbitMqConfiguration);
         services.AddScoped<IRabbitMqPublisher, RabbitMqPublisher>();
         return services;

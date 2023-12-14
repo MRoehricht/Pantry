@@ -250,16 +250,18 @@
 	$: console.log(selectedIngredient);
 </script>
 
-<div class="grid grid-cols-2 md:grid-cols-2 gap-2">
-	<div class="flex items-center">
+<div class="flex">
+	<div class="flex-none">
 		<a href="/recipes">
 			<button type="button" class="btn-icon variant-filled-primary rounded-md"
 				><i class="fa-solid fa-caret-left"></i>
 			</button>
 		</a>
+	</div>
+	<div class="grow">
 		<h1 class="h1 ml-5 mr-5">{recipe.name}</h1>
 	</div>
-	<div class="justify-self-end justify-self flex items-center">
+	<div class="flex-none">
 		<button
 			disabled={isSaving}
 			class="btn-icon variant-filled-secondary rounded-md"
@@ -371,35 +373,45 @@
 			{#each recipe.ingredients as ingredient, i}
 				<li
 					transition:fade
-					id="{ingredient.name}-{ingredient.countOff}-{ingredient.unit}"
 					class="block p-6 bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700 card-hover"
 				>
-					{#if loadingIngredient == i}
-						<ProgressRadial labelledby="1" width="w-12" />
-					{/if}
-					<span class="badge-icon p-4 variant-soft-primary">{i + 1}</span>
-					<span class="flex-auto">
-						<dt>{ingredient.name}</dt>
-					</span>
-					<span class="flex-auto">
-						<dt>{ingredient.countOff} {ingredient.unit}</dt>
-					</span>
-					<span class="flex-end">
-						<button
-							disabled={loadingIngredient == i}
-							type="button"
-							class="btn-icon variant-filled-secondary border-0"
-							on:click={() => {
-								selectedIngredient = ingredient;
-								selectedIngredientIndex = i;
-							}}
-							use:popup={ingredientPopupClick}
-							><i class="fa-solid fa-ellipsis-vertical"></i>
-						</button>
-					</span>
+					<div
+						class="w-full grid grid-cols-4 {loadingIngredient == i
+							? 'grid-rows-2'
+							: 'grid-rows-1'}   gap-0"
+					>
+						<div>
+							<span class="badge-icon p-4 variant-soft-primary"
+								><h4 class="h4">{i + 1}</h4></span
+							>
+						</div>
+						<div>
+							<h3 class="h4">{ingredient.name}</h3>
+						</div>
+						<div>
+							<h3 class="h4">{ingredient.countOff} {ingredient.unit}</h3>
+						</div>
+						<div class="justify-self-end">
+							<button
+								disabled={loadingIngredient == i}
+								type="button"
+								class="btn-icon variant-filled-secondary border-0"
+								on:click={() => {
+									selectedIngredient = ingredient;
+									selectedIngredientIndex = i;
+								}}
+								use:popup={ingredientPopupClick}
+								><i class="fa-solid fa-ellipsis-vertical"></i>
+							</button>
+						</div>
+						{#if loadingIngredient == i || false}
+							<div class="col-start-2 col-span-2 h-1">
+								<ProgressBar height="h-1" />
+							</div>
+						{/if}
+					</div>
 				</li>
 			{/each}
 		</ol>
 	</div>
-	<br />
 </div>

@@ -6,7 +6,7 @@
 	import { onMount } from 'svelte';
 	import { Orderings } from '$lib/types/Orderings';
 	import OverviewCard from '$lib/components/OverviewCard.svelte';
-	import type { OverviewItem } from '$lib/modules/core/types/Core';
+	import type { OverviewItem, OverviewItemCreateDto } from '$lib/modules/core/types/Core';
 
 	export let url: string; // /goods
 	export let overviewContext: string;
@@ -52,7 +52,8 @@
 	async function postOverviewItem(name: string) {
 		if (name == null || name.length == 0) return;
 		const createDto: OverviewItemCreateDto = {
-			name: name
+			name: name,
+			description: null
 		};
 		const response: Response = await fetch(url, {
 			method: 'POST',
@@ -69,7 +70,6 @@
 			throw new Error(`HTTP error! status: ${response.status}`);
 		} else {
 			var itemRespose: OverviewItem = await response.json();
-			console.log(itemRespose.id);
 			const t: ToastSettings = {
 				action: {
 					label: 'öffnen',
@@ -97,7 +97,7 @@
 			modalStore.trigger(modalSettingPutError);
 			throw new Error(`HTTP error! status: ${response.status}`);
 		} else {
-			const overviewItems: OverviewItems[] = await response.json();
+			const overviewItems: OverviewItem[] = await response.json();
 			return overviewItems;
 		}
 	}

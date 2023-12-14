@@ -32,6 +32,11 @@ services:
       - DB_DB=pantry
       - DB_USER=pantry
       - DB_PASSWORD=pantry
+      - RABBITMQ__HOST=rabbitmq
+      - RABBITMQ__PORT=5672
+      - RABBITMQ__USER=pantry
+      - RABBITMQ__PASSWORD=pantry
+      - RABBITMQ__QUEUENAME=Pantry.Recipe.Api
       - ALLOWED_ORIGINS="http://localhost:5173"
     restart: always
     networks:
@@ -79,6 +84,7 @@ services:
       - RABBITMQ__PORT=5672
       - RABBITMQ__USER=pantry
       - RABBITMQ__PASSWORD=pantry
+      - RABBITMQ__QUEUENAME=Pantry.Plan.Api
       - ALLOWED_ORIGINS="http://localhost:5173"
     restart: always
     networks:
@@ -126,6 +132,7 @@ services:
       - RABBITMQ__PORT=5672
       - RABBITMQ__USER=pantry
       - RABBITMQ__PASSWORD=pantry
+      - RABBITMQ__QUEUENAME=Pantry.Api
       - ALLOWED_ORIGINS=http://localhost:5173
     restart: always
     networks:
