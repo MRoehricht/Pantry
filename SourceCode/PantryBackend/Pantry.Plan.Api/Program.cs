@@ -5,6 +5,8 @@ using Microsoft.OpenApi.Models;
 using Pantry.Plan.Api.Configuration;
 using Pantry.Plan.Api.Database.Contexts;
 using Pantry.Plan.Api.Endpoints;
+using Pantry.Plan.Api.Services.RabbitMqConsumerServices;
+using Pantry.Services.RabbitMqServices;
 using Pantry.Services.RabbitMqServices.DependencyInjection;
 
 namespace Pantry.Plan.Api;
@@ -36,7 +38,10 @@ public class Program
             optionsAction.UseNpgsql($"host={postgresHost};port={postgresPort};database={postgresDatabase};username={postgresUser};password={postgresPassword};");
         });
 
+        
         builder.Services.AddRabbitMqServices(builder.Configuration);
+        builder.Services.AddTransient<IRabbitMqConsumerService, DeleteRecipeConsumerService>();
+        builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
 
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())

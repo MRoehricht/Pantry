@@ -1,10 +1,7 @@
 import { env } from '$env/dynamic/private';
 
 export async function PUT({ request }): Promise<Response> {
-	console.log('PUT');
-
 	const { ingredientCreateDto } = await request.json();
-	console.log(ingredientCreateDto);
 	const response = await fetch(
 		env.PRIVATE_RECIPE_API_URL +
 			'/ingredients/' +
@@ -24,10 +21,7 @@ export async function PUT({ request }): Promise<Response> {
 }
 
 export async function POST({ request }): Promise<Response> {
-	console.log('POST');
-
 	const { ingredientCreateDto } = await request.json();
-	console.log(ingredientCreateDto);
 	const response = await fetch(
 		env.PRIVATE_RECIPE_API_URL + '/ingredients/' + ingredientCreateDto.recipeId,
 		{

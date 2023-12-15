@@ -79,6 +79,10 @@ public class RabbitMqConsumerBackgroundService : BackgroundService
                 var message = JsonSerializer.Deserialize<Message<Ingredient>>(content);
                 consumerService.ProcessMessage(message, type);
             }
+            if (type == MessageType.RecipeIsDeleted) {
+                var message = JsonSerializer.Deserialize<Message<Guid>>(content);
+                consumerService.ProcessMessage(message, type);
+            }
         }
         catch (InvalidOperationException ex) {
             _logger.LogError($"{ex.Message}");

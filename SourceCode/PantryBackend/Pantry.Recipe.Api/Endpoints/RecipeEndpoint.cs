@@ -3,6 +3,8 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Database.Entities;
+using Pantry.Services.RabbitMqServices;
+using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
 using Pantry.Shared.Models.RecipeModels.RecipeRequestModels;
 
@@ -12,6 +14,7 @@ public static class RecipeEndpoint
 {
     public static RouteGroupBuilder MapRecipesEndpoint(this RouteGroupBuilder group)
     {
+        group.MapGet("/overview/{id}", GetRecipeOverviewById).WithName("GetRecipeOverviewById").Produces<IList<RecipeOverview>>().Produces(StatusCodes.Status404NotFound).WithOpenApi();
         group.MapGet("/overview/", GetRecipeOverview).WithName("GetRecipeOverview").Produces<IList<RecipeOverview>>().WithOpenApi();
         group.MapGet("/", GetRecipes).WithName("GetRecipes").Produces<IList<Shared.Models.RecipeModels.Recipe>>().WithOpenApi();
         group.MapGet("/{id}", GetRecipe).WithName("GetRecipeById").Produces<Shared.Models.RecipeModels.Recipe>().Produces(StatusCodes.Status404NotFound).WithOpenApi();
@@ -37,12 +40,15 @@ public static class RecipeEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> DeleteRecipe(RecipeContext context, Guid id)
+    private static async Task<IResult> DeleteRecipe(IRabbitMqPublisher rabbitMqPublisher, RecipeContext context, Guid id)
     {
         if (await context.Recipes.FindAsync(id) is RecipeEntity recipe)
         {
             context.Recipes.Remove(recipe);
             await context.SaveChangesAsync();
+
+            rabbitMqPublisher.SendMessage(id, MessageType.RecipeIsDeleted);
+
             return Results.NoContent();
         }
 
@@ -68,6 +74,21 @@ public static class RecipeEndpoint
 
         return Results.Created($"/recipes/{entity.Id}", mapper.Map<Shared.Models.RecipeModels.Recipe>(entity));
     }
+
+    
+    private static async Task<IResult> GetRecipeOverviewById(IMapper mapper, RecipeContext context, Guid id) {
+        var recipes = await context.Recipes.FindAsync(id);
+
+        if (await context.Recipes.FindAsync(id) is RecipeEntity recipe) {
+            if (recipe.Description is { Length: > 50 })
+                recipe.Description = recipe.Description[..50];
+            return Results.Ok(mapper.Map<RecipeOverview>(recipe));
+
+        }
+
+        return Results.NotFound();
+    }
+
 
     private static async Task<IResult> GetRecipeOverview(IMapper mapper, RecipeContext context) {
         var recipes = await context.Recipes.AsNoTracking().ToListAsync();

@@ -1,25 +1,14 @@
 <script lang="ts">
-	import {
-		InputChip,
-		popup,
-		Modal,
-		getModalStore,
-		storePopup,
-		ProgressRadial,
-		ProgressBar
-	} from '@skeletonlabs/skeleton';
+	import { popup, getModalStore, ProgressBar } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, PopupSettings } from '@skeletonlabs/skeleton';
-	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-	import type { Good, GoodRatingCreateDto } from '$lib/modules/goods/types/Good.js';
 	import type {
 		Ingredient,
 		IngredientCreateDto,
 		Recipe
 	} from '$lib/modules/recipe/types/Recipe.js';
-	import StringItemLable from '$lib/components/ItemDetails/StringItemLabel.svelte';
 	import ItemTextLabel from '$lib/components/ItemDetails/ItemTextLabel.svelte';
 	import TextareaItemLabel from '$lib/components/ItemDetails/TextareaItemLabel.svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	export let data;
 	let recipe: Recipe;
@@ -32,7 +21,6 @@
 	let isSaving: boolean = false;
 
 	const modalStore = getModalStore();
-	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	const popupClick: PopupSettings = {
 		event: 'click',
@@ -246,8 +234,6 @@
 		recipe = JSON.parse(backUpData);
 		inEdidtMode = false;
 	}
-
-	$: console.log(selectedIngredient);
 </script>
 
 <div class="flex">

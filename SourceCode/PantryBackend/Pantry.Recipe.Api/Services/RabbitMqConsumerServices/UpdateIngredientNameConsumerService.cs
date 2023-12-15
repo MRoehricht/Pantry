@@ -40,16 +40,13 @@ namespace Pantry.Recipe.Api.Services.RabbitMqConsumerServices {
             using IServiceScope scope = _serviceProvider.CreateScope();
             try {
                 var context = scope.ServiceProvider.GetRequiredService<RecipeContext>();
-
-                //var recipes = context.Recipes.Where(r => r.Ingredients.Any(i => i.PantryItemId == ingredient.PantryItemId)).ToList();
-
+                
                 foreach (var recipe in context.Recipes) {
                     foreach (var ingredientItem in recipe.Ingredients) {
                         if (ingredientItem.PantryItemId == ingredient.PantryItemId) {
                             ingredientItem.Name = ingredient.Name;
                         }
                     }
-
                 }
 
                 await context.SaveChangesAsync();

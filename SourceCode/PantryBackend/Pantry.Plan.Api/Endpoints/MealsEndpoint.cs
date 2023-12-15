@@ -12,6 +12,7 @@ public static class MealsEndpoint
 {
     public static RouteGroupBuilder MapMealsEndpoint(this RouteGroupBuilder group)
     {
+        group.MapGet("/date/{date}", GetMealsByDate).WithName("GetMealsByDate").Produces<IEnumerable<Meal>>(StatusCodes.Status200OK).WithTags("Meals").WithOpenApi();
         group.MapGet("/", GetMeals).WithName("GetMeals").Produces<IEnumerable<Meal>>(StatusCodes.Status200OK).WithTags("Meals").WithOpenApi();
         group.MapGet("/{id}", GetMeal).WithName("GetMealById").Produces<Meal>(StatusCodes.Status200OK).Produces(StatusCodes.Status404NotFound).WithTags("Meals").WithOpenApi();
         group.MapPost("/", CreateMeal).WithName("CreateMeal").Produces<Meal>(StatusCodes.Status201Created).WithTags("Meals").WithOpenApi();
@@ -62,4 +63,8 @@ public static class MealsEndpoint
         return Results.Ok(mapper.Map<IEnumerable<Meal>>(recipes));
     }
 
+    private static async Task<IResult> GetMealsByDate(IMapper mapper, PlanContext context, DateOnly date) {
+        var recipes = await context.Meals.AsNoTracking().ToListAsync();
+        return Results.Ok(mapper.Map<IEnumerable<Meal>>(recipes.Where(_ => _.Date == date)));
+    }
 }

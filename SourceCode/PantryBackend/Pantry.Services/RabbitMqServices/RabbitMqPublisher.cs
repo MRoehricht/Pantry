@@ -23,7 +23,7 @@ public class RabbitMqPublisher : IRabbitMqPublisher
         var messageObject = new Message<T> { Type = messageType, Content = message };
         var json = JsonSerializer.Serialize(messageObject);
         var body = Encoding.UTF8.GetBytes(json);
-        _channel.BasicPublish(exchange: "", routingKey: GetQueueName(messageType), basicProperties: null, body: body);
+        _channel.BasicPublish(exchange: "", routingKey: messageType.GetDestinationQueue(), basicProperties: null, body: body);
     }
 
     private string GetQueueName(MessageType messageType) {
@@ -31,8 +31,10 @@ public class RabbitMqPublisher : IRabbitMqPublisher
             case MessageType.None:
                 return "Pantry";
             case MessageType.RegisterGood:
+                var test2 = messageType.GetDestinationQueue();
                 return "Pantry.Api";
             case MessageType.UpdateIngredientName:
+                var test = messageType.GetDestinationQueue();
                 return "Pantry.Recipe.Api";
             default:
                 throw new ArgumentOutOfRangeException(nameof(messageType), messageType, null);

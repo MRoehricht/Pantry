@@ -9,7 +9,8 @@
 		LightSwitch,
 		Modal,
 		Toast,
-		type ModalComponent
+		type ModalComponent,
+		storePopup
 	} from '@skeletonlabs/skeleton';
 	import Navigation from '$lib/components/Navigation/Navigation.svelte';
 
@@ -21,11 +22,15 @@
 
 	import RatingModal from '$lib/components/Modals/RatingModal.svelte';
 	import IngredientEditModal from '$lib/components/Modals/IngredientEditModal.svelte';
+	import FindRecipeModal from '$lib/components/Modals/FindRecipeModal.svelte';
+	import { autoUpdate, computePosition, offset, shift, flip, arrow } from '@floating-ui/dom';
 
 	const modalRegistry: Record<string, ModalComponent> = {
 		RatingModal: { ref: RatingModal },
-		IngredientEditModal: { ref: IngredientEditModal }
+		IngredientEditModal: { ref: IngredientEditModal },
+		FindRecipeModal: { ref: FindRecipeModal }
 	};
+	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 </script>
 
 <Toast />

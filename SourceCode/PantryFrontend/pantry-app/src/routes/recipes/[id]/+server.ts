@@ -24,3 +24,8 @@ export async function POST({ request, params }): Promise<Response> {
 
 	return response;
 }
+
+export async function GET({ params }): Promise<Response> {
+	const response = await fetch(env.PRIVATE_RECIPE_API_URL + '/recipes/overview/' + params.id);
+	return response;
+}

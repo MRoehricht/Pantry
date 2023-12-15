@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { InputChip, popup, Modal, getModalStore, storePopup } from '@skeletonlabs/skeleton';
+	import { InputChip, popup, getModalStore } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, PopupSettings } from '@skeletonlabs/skeleton';
-	import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import type { Good, GoodRatingCreateDto } from '$lib/modules/goods/types/Good.js';
 	import StringItemLable from '$lib/components/ItemDetails/StringItemLabel.svelte';
 	import NumberItemLabel from '$lib/components/ItemDetails/NumberItemLabel.svelte';
@@ -16,7 +15,6 @@
 	let goodBackUp = JSON.stringify(data.good);
 
 	const modalStore = getModalStore();
-	storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
 	const popupClick: PopupSettings = {
 		event: 'click',

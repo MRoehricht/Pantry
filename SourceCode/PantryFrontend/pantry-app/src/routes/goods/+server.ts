@@ -2,7 +2,6 @@ import { env } from '$env/dynamic/private';
 
 export async function PUT({ request }): Promise<Response> {
 	const { good } = await request.json();
-	console.log(good);
 	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/', {
 		method: 'PUT',
 		body: JSON.stringify(good),

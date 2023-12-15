@@ -68,10 +68,7 @@
 		const response: Response = await fetch('/goods/suggestions', {
 			method: 'GET'
 		});
-
 		goodSuggestions = await response.json();
-		console.log(goodSuggestions);
-
 		goodOptions = goodSuggestions.map((suggestion) => {
 			return {
 				label: suggestion.name,
