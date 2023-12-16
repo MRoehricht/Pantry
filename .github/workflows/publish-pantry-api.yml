@@ -19,3 +19,4 @@ jobs:
           github-token: '${{ secrets.PACKAGE_TOKEN }}'
           image-name: pantry-api
           dockerfile: ./SourceCode/PantryBackend/Pantry.Api/Dockerfile
+          build-context: ./SourceCode/PantryBackend/Pantry.Api
