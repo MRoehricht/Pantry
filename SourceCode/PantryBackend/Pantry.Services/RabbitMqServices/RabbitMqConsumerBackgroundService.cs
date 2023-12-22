@@ -62,7 +62,8 @@ public class RabbitMqConsumerBackgroundService : BackgroundService
         return Task.CompletedTask;
     }
 
-    private void HandleMessage(string content) {
+    private void HandleMessage(string content) 
+    {
         // we just print this message   
         _logger.LogInformation($"consumer received {content}");
 

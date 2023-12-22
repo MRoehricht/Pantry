@@ -86,7 +86,8 @@ public static class GoodsEndpoint
         return Results.Ok(mapper.Map<IEnumerable<Good>>(goods));
     }
 
-    private static async Task<IResult> GetGoodsOverview(IMapper mapper, PantryContext context) {
+    private static async Task<IResult> GetGoodsOverview(IMapper mapper, PantryContext context) 
+    {
         var goods = await context.Goods.AsNoTracking().ToListAsync();
         return Results.Ok(mapper.Map<IEnumerable<GoodsOverview>>(goods).OrderBy(_ => _.Name));
     }
