@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pantry.Plan.Api.Database.Contexts;
 using Pantry.Plan.Api.Database.Entities;
 using Pantry.Services.RabbitMqServices;
+using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.PlanModels;
 using Pantry.Shared.Models.PlanModels.MealRequestModels;
 
@@ -21,7 +22,7 @@ public static class MealsEndpoint
         return group;
     }
 
-    private static async Task<IResult> UpdateMeal(IMapper mapper, PlanContext context, MealUpdateDto meal)
+    private static async Task<IResult> UpdateMeal(IMapper mapper, IRabbitMqPublisher publisher, PlanContext context, MealUpdateDto meal)
     {
         var entity = await context.Meals.FindAsync(meal.Id);
 
@@ -33,10 +34,14 @@ public static class MealsEndpoint
 
         await context.SaveChangesAsync();
 
+        if (meal.WasCooked) {
+            publisher.SendMessage(meal.RecipeId, MessageType.MealWasCooked);
+        }
+
         return Results.NoContent();
     }
 
-    private static async Task<IResult> CreateMeal(IMapper mapper, IRabbitMqPublisher publisher, PlanContext context, MealCreateDto meal)
+    private static async Task<IResult> CreateMeal(IMapper mapper, PlanContext context, MealCreateDto meal)
     {
         var entity = mapper.Map<MealEntity>(meal);
 
@@ -44,9 +49,7 @@ public static class MealsEndpoint
 
         await context.Meals.AddAsync(entity);
         await context.SaveChangesAsync();
-
-        publisher.SendMessage(entity);
-
+        
         return Results.Created($"/meals/{entity.Id}", mapper.Map<Meal>(entity));
     }
 

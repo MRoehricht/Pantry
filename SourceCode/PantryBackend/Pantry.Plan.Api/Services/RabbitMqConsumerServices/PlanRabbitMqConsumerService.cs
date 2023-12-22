@@ -5,13 +5,13 @@ using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
 
 namespace Pantry.Plan.Api.Services.RabbitMqConsumerServices {
-    public class DeleteRecipeConsumerService: IRabbitMqConsumerService {
+    public class PlanRabbitMqConsumerService: IRabbitMqConsumerService {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<DeleteRecipeConsumerService> _logger;
+        private readonly ILogger<PlanRabbitMqConsumerService> _logger;
 
-        public DeleteRecipeConsumerService(ILoggerFactory loggerFactory, IServiceProvider serviceProvider) {
+        public PlanRabbitMqConsumerService(ILoggerFactory loggerFactory, IServiceProvider serviceProvider) {
             _serviceProvider = serviceProvider;
-            _logger = loggerFactory.CreateLogger<DeleteRecipeConsumerService>();
+            _logger = loggerFactory.CreateLogger<PlanRabbitMqConsumerService>();
 
         }
 

@@ -36,7 +36,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddLogging();
-        builder.Services.AddTransient<IRabbitMqConsumerService, RegisterGoodConsumerService>();
+        builder.Services.AddTransient<IRabbitMqConsumerService, PantryRabbitMqConsumerService>();
 
         builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
 

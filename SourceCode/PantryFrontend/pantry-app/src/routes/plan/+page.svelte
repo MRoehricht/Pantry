@@ -1,5 +1,10 @@
 <script lang="ts">
-	import type { CreateMeal, Meal, WeekDay } from '$lib/modules/plan/types/Plan';
+	import type {
+		CreateMeal,
+		Meal,
+		MealRecipeOverview,
+		WeekDay
+	} from '$lib/modules/plan/types/Plan';
 
 	// Add your script code here
 	import type { RecipeOverview } from '$lib/modules/recipe/types/Recipe';
@@ -68,7 +73,12 @@
 					});
 					if (responseRecipe.ok) {
 						const overviewItem: RecipeOverview = await responseRecipe.json();
-						weekDay.meals.push(overviewItem);
+						const mealRecipeOverview: MealRecipeOverview = {
+							meal: meal,
+							recipeOverview: overviewItem
+						};
+
+						weekDay.meals.push(mealRecipeOverview);
 					}
 				});
 				await Promise.all(mealPromises);
@@ -122,7 +132,11 @@
 					} else {
 						let weekDay = weekDays.find((weekDay) => weekDay.date == date);
 						if (weekDay == null) return;
-						weekDay.meals.push(recipeResponse);
+						const mealRecipeOverview: MealRecipeOverview = {
+							meal: await response.json(),
+							recipeOverview: recipeResponse
+						};
+						weekDay.meals.push(mealRecipeOverview);
 						weekDays = [...weekDays];
 					}
 				}
@@ -145,6 +159,36 @@
 			week = 52;
 			year--;
 		}
+	}
+
+	function setWarsCooked(meal: Meal) {
+		const modal: ModalSettings = {
+			title: 'Gericht als gekocht markieren',
+			buttonTextCancel: 'Abbrechen',
+			buttonTextConfirm: 'Ja',
+			type: 'confirm',
+			component: 'ConfirmModal',
+			response: async (confirmed: boolean) => {
+				if (confirmed) {
+					meal.wasCooked = true;
+					const response: Response = await fetch('/plan/' + meal.id, {
+						method: 'PUT',
+						body: JSON.stringify({ meal })
+					});
+					if (!response.ok) {
+						const modalSettingPutError: ModalSettings = {
+							type: 'alert',
+							title: 'Fehler',
+							body: 'Beim Speichern ist ein Fehler aufgetreten.'
+						};
+						modalStore.trigger(modalSettingPutError);
+					} else {
+						loadData();
+					}
+				}
+			}
+		};
+		modalStore.trigger(modal);
 	}
 </script>
 
@@ -186,7 +230,18 @@
 			</div>
 			{#each weekDay.meals as meal}
 				<div class="flex justify-center mb-2">
-					<span>{meal.name}</span>
+					<span class="grow ml-5 {meal.meal.wasCooked ? 'strikethrough' : ''} "
+						>{meal.recipeOverview.name}</span
+					>
+					{#if !meal.meal.wasCooked}
+						<button
+							class="flex-end mr-5"
+							title="Als gekocht markieren"
+							on:click={() => {
+								setWarsCooked(meal.meal);
+							}}><i class="fa-regular fa-circle-check"></i></button
+						>
+					{/if}
 				</div>
 			{/each}
 		</div>
@@ -194,5 +249,14 @@
 </div>
 
 <style>
-	/* Add your styles here */
+	.strikethrough {
+		text-decoration: line-through;
+	}
+	.hover-div button {
+		visibility: hidden;
+	}
+
+	.hover-div:hover button {
+		visibility: visible;
+	}
 </style>

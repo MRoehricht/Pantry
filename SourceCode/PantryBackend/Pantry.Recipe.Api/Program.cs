@@ -32,7 +32,7 @@ public class Program
             optionsAction.UseNpgsql($"host={postgresHost};port={postgresPort};database={postgresDatabase};username={postgresUser};password={postgresPassword};");
         });
         builder.Services.AddRabbitMqServices(builder.Configuration);
-        builder.Services.AddTransient<IRabbitMqConsumerService, UpdateIngredientNameConsumerService>();
+        builder.Services.AddTransient<IRabbitMqConsumerService, RecipeRabbitMqConsumerService>();
         builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
 
 

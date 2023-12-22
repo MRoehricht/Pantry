@@ -38,10 +38,8 @@ public static class IngredientEndpoint
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Ingredients.FirstOrDefault(i => i.Name == name) is IngredientEntity ingredientRecord)
         {
-            ingredientRecord.Name = ingredient.Name;
             ingredientRecord.CountOff = ingredient.CountOff;
             ingredientRecord.Unit = ingredient.Unit;
-            ingredientRecord.PantryItemId = ingredient.PantryItemId;
 
             await context.SaveChangesAsync();
 

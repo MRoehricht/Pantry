@@ -51,6 +51,18 @@
 		<span>Rezepte</span>
 	</AppRailAnchor>
 	<AppRailAnchor
+		name="recipes-tile"
+		title="Einkaufsliste"
+		href="/shoppinglist"
+		selected={$page.url.pathname.startsWith('/shoppinglist')}
+		on:click={drawerClose}
+	>
+		<svelte:fragment slot="lead">
+			<i class="fa-solid fa-list-check"></i>
+		</svelte:fragment>
+		<span>Einkaufsliste</span>
+	</AppRailAnchor>
+	<AppRailAnchor
 		name="scanner-tile"
 		title="Waren ein- und ausgang"
 		href="/scanner"

@@ -40,7 +40,7 @@ public class Program
 
         
         builder.Services.AddRabbitMqServices(builder.Configuration);
-        builder.Services.AddTransient<IRabbitMqConsumerService, DeleteRecipeConsumerService>();
+        builder.Services.AddTransient<IRabbitMqConsumerService, PlanRabbitMqConsumerService>();
         builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
 
         var app = builder.Build();

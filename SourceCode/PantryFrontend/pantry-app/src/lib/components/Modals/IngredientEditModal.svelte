@@ -10,16 +10,23 @@
 		popup
 	} from '@skeletonlabs/skeleton';
 	import type { Ingredient } from '$lib/modules/recipe/types/Recipe';
-	import type { GoodSuggestion } from '$lib/modules/goods/types/Good';
+	import {
+		UnitOfMeasurement,
+		type GoodSuggestion,
+		getUnitOfMeasurementDisplayName,
+		UnitOfMeasurementDisplayName
+	} from '$lib/modules/goods/types/Good';
 
 	// Props
 	/** Exposes parent props to this component. */
 	export let parent: SvelteComponent;
 	let ingredient: Ingredient;
 	let submitButtonLabel: string;
+	let inEditMode = false;
 	let showNameError = false;
 	let showUnitError = false;
 	let showCountOffError = false;
+	let lockUnit = false;
 
 	const modalStore = getModalStore();
 
@@ -31,9 +38,6 @@
 
 		if (ingredient.name == null || ingredient.name.length < 1) {
 			showNameError = true;
-		}
-		if (ingredient.unit == null || ingredient.unit.length < 1) {
-			showUnitError = true;
 		}
 		if (ingredient.countOff == null || ingredient.countOff <= 0) {
 			showCountOffError = true;
@@ -50,11 +54,12 @@
 
 	if ($modalStore[0]?.meta?.ingredient) {
 		ingredient = $modalStore[0]?.meta?.ingredient;
+		inEditMode = true;
 		submitButtonLabel = 'Speichern';
 	} else {
 		ingredient = {
 			name: '',
-			unit: '',
+			unit: UnitOfMeasurement.Milliliter,
 			countOff: 1,
 			pantryItemId: null
 		};
@@ -62,7 +67,7 @@
 	}
 
 	let goodSuggestions: GoodSuggestion[];
-	type GoodOption = AutocompleteOption<string, { healthy: boolean }>;
+	type GoodOption = AutocompleteOption<string, { unitOfMeasurement: UnitOfMeasurement }>;
 	let goodOptions: GoodOption[];
 	onMount(async () => {
 		const response: Response = await fetch('/goods/suggestions', {
@@ -72,7 +77,10 @@
 		goodOptions = goodSuggestions.map((suggestion) => {
 			return {
 				label: suggestion.name,
-				value: suggestion.id
+				value: suggestion.id,
+				meta: {
+					unitOfMeasurement: suggestion.unitOfMeasurement
+				}
 			};
 		});
 	});
@@ -86,6 +94,10 @@
 	function onPopupDemoSelect(event: CustomEvent<GoodOption>): void {
 		ingredient.name = event.detail.label;
 		ingredient.pantryItemId = event.detail.value;
+		if (event.detail.meta) {
+			ingredient.unit = event.detail.meta.unitOfMeasurement;
+			lockUnit = true;
+		}
 	}
 </script>
 
@@ -106,6 +118,7 @@
 					placeholder="Name..."
 					minlength="1"
 					use:popup={popupSettings}
+					readonly={inEditMode}
 				/>
 				<div data-popup="popupAutocomplete" class="card">
 					<Autocomplete
@@ -134,12 +147,20 @@
 				</label>
 				<label class="label flex-auto pl-2">
 					<span>Einheit</span>
-					<input
-						class="input rounded-md p-2"
-						type="text"
-						bind:value={ingredient.unit}
-						placeholder="g / ml / Stk..."
-					/>
+					{#if inEditMode || lockUnit}
+						<input
+							class="input rounded-md p-2"
+							type="text"
+							value={getUnitOfMeasurementDisplayName(ingredient.unit)}
+							readonly
+						/>
+					{:else}
+						<select bind:value={ingredient.unit} class="input rounded-md p-2">
+							{#each Object.entries(UnitOfMeasurementDisplayName) as [unit, displayName]}
+								<option value={Number(unit)}>{displayName}</option>
+							{/each}
+						</select>
+					{/if}
 					{#if showUnitError}
 						<span class="text-error-500">Bitte vergeben Sie eine Einheit.</span>
 					{/if}

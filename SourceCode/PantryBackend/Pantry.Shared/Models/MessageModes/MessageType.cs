@@ -14,6 +14,10 @@ public enum MessageType : int
     UpdateIngredientName = 2,
     [DestinationQueue(MessageConstants.PANTRY_PLAN_QUEUE_NAME)]
     RecipeIsDeleted = 3,
+    [DestinationQueue(MessageConstants.PANTRY_RECIPE_QUEUE_NAME)]
+    MealWasCooked = 4,
+    [DestinationQueue(MessageConstants.PANTRY_API_QUEUE_NAME)]
+    MinimizeGoodsQuantity = 5,
 }
 
 public static class MessageTypeExtension {

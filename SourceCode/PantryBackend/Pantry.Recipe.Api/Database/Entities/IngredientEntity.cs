@@ -1,4 +1,6 @@
-﻿namespace Pantry.Recipe.Api.Database.Entities;
+﻿using Pantry.Shared.Models.GoodModels;
+
+namespace Pantry.Recipe.Api.Database.Entities;
 
 internal class IngredientEntity
 {
@@ -6,7 +8,7 @@ internal class IngredientEntity
 
     public double CountOff { get; set; }
 
-    public required string Unit { get; set; }
+    public required UnitOfMeasurement Unit { get; set; }
 
     public Guid? PantryItemId { get; set; }
 }

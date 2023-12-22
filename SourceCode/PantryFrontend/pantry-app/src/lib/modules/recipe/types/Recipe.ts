@@ -1,3 +1,5 @@
+import type { UnitOfMeasurement } from "$lib/modules/goods/types/Good";
+
 export type Recipe = {
 	id: string;
 	name: string;
@@ -9,7 +11,7 @@ export type Recipe = {
 export type Ingredient = {
 	name: string;
 	countOff: number;
-	unit: string;
+	unit: UnitOfMeasurement;
 	pantryItemId: string | null;
 };
 

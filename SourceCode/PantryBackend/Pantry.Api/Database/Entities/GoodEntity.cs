@@ -1,4 +1,6 @@
-﻿namespace Pantry.Api.Database.Entities;
+﻿using Pantry.Shared.Models.GoodModels;
+
+namespace Pantry.Api.Database.Entities;
 
 public class GoodEntity
 {
@@ -8,6 +10,7 @@ public class GoodEntity
     public string? Description { get; set; }
     public double Amount { get; set; }
     public double? MinimumAmount { get; set; }
+    public UnitOfMeasurement UnitOfMeasurement { get; set; }
     public string? StorageLocation { get; set; }
     public long? EAN { get; set; }
     public double? CurrentPrice { get; set; }

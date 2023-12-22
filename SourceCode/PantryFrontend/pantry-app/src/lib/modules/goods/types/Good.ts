@@ -44,4 +44,21 @@ export type GoodRatingCreateDto = {
 export interface GoodSuggestion {
 	id: string;
 	name: string;
+	unitOfMeasurement: UnitOfMeasurement;
+}
+
+export enum UnitOfMeasurement {
+	Milliliter = 0,
+	Gram = 1,
+	Piece = 2
+}
+
+export const UnitOfMeasurementDisplayName = {
+	[UnitOfMeasurement.Milliliter]: 'Milliliter (ml)',
+	[UnitOfMeasurement.Gram]: 'Gramm (g)',
+	[UnitOfMeasurement.Piece]: 'Stück (Stk)'
+};
+
+export function getUnitOfMeasurementDisplayName(unitOfMeasurement: UnitOfMeasurement): string {
+	return UnitOfMeasurementDisplayName[unitOfMeasurement];
 }

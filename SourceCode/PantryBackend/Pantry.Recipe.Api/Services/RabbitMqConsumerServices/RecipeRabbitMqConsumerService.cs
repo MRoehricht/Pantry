@@ -1,26 +1,53 @@
-﻿using Pantry.Recipe.Api.Database.Contexts;
+﻿using AutoMapper;
+using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Services.RabbitMqServices;
 using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
 
 namespace Pantry.Recipe.Api.Services.RabbitMqConsumerServices {
-    public class UpdateIngredientNameConsumerService : IRabbitMqConsumerService {
+    public class RecipeRabbitMqConsumerService : IRabbitMqConsumerService {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<UpdateIngredientNameConsumerService> _logger;
+        private readonly IRabbitMqPublisher _publisher;
+        private readonly IMapper _mapper;
+        private readonly ILogger<RecipeRabbitMqConsumerService> _logger;
 
-        public UpdateIngredientNameConsumerService(ILoggerFactory loggerFactory, IServiceProvider serviceProvider) {
+        public RecipeRabbitMqConsumerService(ILoggerFactory loggerFactory, IServiceProvider serviceProvider, IRabbitMqPublisher publisher, IMapper mapper) {
             _serviceProvider = serviceProvider;
-            _logger = loggerFactory.CreateLogger<UpdateIngredientNameConsumerService>();
+            _publisher = publisher;
+            _mapper = mapper;
+            _logger = loggerFactory.CreateLogger<RecipeRabbitMqConsumerService>();
 
         }
 
         public async Task ProcessMessage<T>(T message, MessageType type) {
             if (type == MessageType.UpdateIngredientName && typeof(Message<Ingredient>).IsAssignableFrom(typeof(T)) && message is Message<Ingredient> ingredientMessage) {
-                await UpdateIngredientName(ingredientMessage.Content);
+                await ReactOnUpdateIngredientName(ingredientMessage.Content);
+            }else if (type == MessageType.MealWasCooked && typeof(Message<Guid>).IsAssignableFrom(typeof(T)) && message is Message<Guid> recipeId) {
+                await ReactOnMealWasCooked(recipeId.Content);
+            }
+
+        }
+
+        private async Task ReactOnMealWasCooked(Guid recipeId) {
+            using IServiceScope scope = _serviceProvider.CreateScope();
+            try {
+                var context = scope.ServiceProvider.GetRequiredService<RecipeContext>();
+                var recipe = await context.Recipes.FindAsync(recipeId);
+
+                if (recipe != null) {
+                    foreach (var ingredientEntity in recipe.Ingredients) {
+                        _publisher.SendMessage(_mapper.Map<Ingredient>(ingredientEntity), MessageType.MinimizeGoodsQuantity);
+                    }
+                }
+
+            } catch (InvalidOperationException ex) {
+                _logger.LogError($"{ex.Message}");
+            } catch (Exception ex) {
+                _logger.LogError(ex.Message);
             }
         }
 
-        private async Task UpdateIngredientName(Ingredient ingredient) {
+        private async Task ReactOnUpdateIngredientName(Ingredient ingredient) {
             if (!ingredient.PantryItemId.HasValue) {
                 _logger.LogError("PantryItemId is NULL");
                 return;
@@ -45,6 +72,7 @@ namespace Pantry.Recipe.Api.Services.RabbitMqConsumerServices {
                     foreach (var ingredientItem in recipe.Ingredients) {
                         if (ingredientItem.PantryItemId == ingredient.PantryItemId) {
                             ingredientItem.Name = ingredient.Name;
+                            ingredientItem.Unit = ingredient.Unit;
                         }
                     }
                 }

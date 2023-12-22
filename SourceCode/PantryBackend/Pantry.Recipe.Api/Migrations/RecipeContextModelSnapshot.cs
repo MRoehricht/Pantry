@@ -68,9 +68,8 @@ namespace Pantry.Recipe.Api.Migrations
                             b1.Property<Guid?>("PantryItemId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Unit")
-                                .IsRequired()
-                                .HasColumnType("text");
+                            b1.Property<int>("Unit")
+                                .HasColumnType("integer");
 
                             b1.HasKey("RecipeEntityId", "Id");
 

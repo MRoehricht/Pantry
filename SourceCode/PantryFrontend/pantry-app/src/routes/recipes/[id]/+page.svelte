@@ -9,6 +9,7 @@
 	import ItemTextLabel from '$lib/components/ItemDetails/ItemTextLabel.svelte';
 	import TextareaItemLabel from '$lib/components/ItemDetails/TextareaItemLabel.svelte';
 	import { fade } from 'svelte/transition';
+	import { getUnitOfMeasurementDisplayName } from '$lib/modules/goods/types/Good.js';
 
 	export let data;
 	let recipe: Recipe;
@@ -116,6 +117,7 @@
 			meta: { ingredient: ingredient },
 			response: async (resonse: Ingredient) => {
 				if (resonse.name) {
+					console.log(resonse);
 					const ingredientCreateDto: IngredientCreateDto = {
 						recipeId: recipe.id,
 						ingredient: resonse,
@@ -307,7 +309,7 @@
 </div>
 
 <ItemTextLabel bind:value={recipe.name} label="Name" {inEdidtMode} />
-<TextareaItemLabel bind:value={recipe.description} label="Beschreibung" {inEdidtMode} />
+<TextareaItemLabel bind:value={recipe.description} label="Zubereitung" {inEdidtMode} />
 {#if inEdidtMode}
 	<div class="grid grid-flow-col justify-stretch mt-5">
 		<button
@@ -375,7 +377,10 @@
 							<h3 class="h4">{ingredient.name}</h3>
 						</div>
 						<div>
-							<h3 class="h4">{ingredient.countOff} {ingredient.unit}</h3>
+							<h3 class="h4">
+								{ingredient.countOff}
+								{getUnitOfMeasurementDisplayName(ingredient.unit)}
+							</h3>
 						</div>
 						<div class="justify-self-end">
 							<button

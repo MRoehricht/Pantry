@@ -1,4 +1,4 @@
-import type { RecipeOverview } from "$lib/modules/recipe/types/Recipe";
+import type { RecipeOverview } from '$lib/modules/recipe/types/Recipe';
 
 export interface Meal {
 	id: string;
@@ -15,5 +15,10 @@ export type CreateMeal = {
 export type WeekDay = {
 	name: string;
 	date: string;
-	meals: RecipeOverview[];
+	meals: MealRecipeOverview[];
+};
+
+export type MealRecipeOverview = {
+	meal: Meal;
+	recipeOverview: RecipeOverview;
 };
