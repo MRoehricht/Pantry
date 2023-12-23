@@ -22,7 +22,6 @@ export async function PUT({ request }): Promise<Response> {
 
 export async function POST({ request }): Promise<Response> {
 	const { ingredientCreateDto } = await request.json();
-	console.log(ingredientCreateDto);
 	const response = await fetch(
 		env.PRIVATE_RECIPE_API_URL + '/ingredients/' + ingredientCreateDto.recipeId,
 		{

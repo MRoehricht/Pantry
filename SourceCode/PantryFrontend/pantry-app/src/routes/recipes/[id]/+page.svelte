@@ -117,7 +117,6 @@
 			meta: { ingredient: ingredient },
 			response: async (resonse: Ingredient) => {
 				if (resonse.name) {
-					console.log(resonse);
 					const ingredientCreateDto: IngredientCreateDto = {
 						recipeId: recipe.id,
 						ingredient: resonse,

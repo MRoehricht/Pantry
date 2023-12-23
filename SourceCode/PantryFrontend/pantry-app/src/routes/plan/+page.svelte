@@ -58,7 +58,6 @@
 	async function loadData() {
 		weekDays.length = 0;
 		weekDays = getDaysOfWeek(year, week);
-		console.log(weekDays);
 
 		const weekDayPromises = weekDays.map(async (weekDay) => {
 			const date = weekDay.date;
@@ -251,12 +250,5 @@
 <style>
 	.strikethrough {
 		text-decoration: line-through;
-	}
-	.hover-div button {
-		visibility: hidden;
-	}
-
-	.hover-div:hover button {
-		visibility: visible;
 	}
 </style>
