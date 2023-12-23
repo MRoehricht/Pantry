@@ -13,6 +13,7 @@
 		storePopup
 	} from '@skeletonlabs/skeleton';
 	import Navigation from '$lib/components/Navigation/Navigation.svelte';
+	import { page } from '$app/stores';
 
 	initializeStores();
 	const drawerStore = getDrawerStore();
@@ -24,6 +25,7 @@
 	import IngredientEditModal from '$lib/components/Modals/IngredientEditModal.svelte';
 	import FindRecipeModal from '$lib/components/Modals/FindRecipeModal.svelte';
 	import { autoUpdate, computePosition, offset, shift, flip, arrow } from '@floating-ui/dom';
+	import { signOut } from '@auth/sveltekit/client';
 
 	const modalRegistry: Record<string, ModalComponent> = {
 		RatingModal: { ref: RatingModal },
@@ -35,11 +37,13 @@
 
 <Toast />
 <Modal components={modalRegistry} />
-<Drawer>
-	<h2 class="p-4">Navigation</h2>
-	<hr />
-	<Navigation />
-</Drawer>
+{#if $page.data.session}
+	<Drawer>
+		<h2 class="p-4">Navigation</h2>
+		<hr />
+		<Navigation />
+	</Drawer>
+{/if}
 
 <!-- App Shell -->
 <AppShell slotSidebarLeft="bg-surface-500/5 w-0 lg:w-20">
@@ -71,6 +75,11 @@
 					GitHub
 				</a>
 				<LightSwitch />
+				{#if $page.data.session}
+					<button on:click={() => signOut()} class="btn btn-sm variant-ghost-surface">
+						Abmelden
+					</button>
+				{/if}
 			</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
