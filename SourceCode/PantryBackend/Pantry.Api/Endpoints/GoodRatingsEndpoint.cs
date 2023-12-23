@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Database.Entities;
+using Pantry.Services.UserServices;
 using Pantry.Shared.Models.GoodModels;
 using Pantry.Shared.Models.GoodModels.MealRequestModels;
 
@@ -13,16 +14,22 @@ namespace Pantry.Api.Endpoints {
             return group;
         }
 
-        private static async Task<IResult> GetRatings(IMapper mapper, PantryContext context, Guid id) {
-            return await context.Goods.FindAsync(id) is GoodEntity good
+        private static async Task<IResult> GetRatings(IMapper mapper, IHeaderEMailService eMailService, PantryContext context, Guid id) {
+            var eMail = eMailService.GetHeaderEMail();
+            if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
+            return await context.Goods.FindAsync(id) is GoodEntity good && good.Owner == eMail
                 ? Results.Ok(mapper.Map<GoodRating>(good))
                 : Results.NotFound();
         }
 
-        private static async Task<IResult> CreateRatings(PantryContext context, GoodRatingCreateDto goodRating) {
+        private static async Task<IResult> CreateRatings(IHeaderEMailService eMailService, PantryContext context, GoodRatingCreateDto goodRating) {
+            var eMail = eMailService.GetHeaderEMail();
+            if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
             var entity = await context.Goods.FindAsync(goodRating.GoodId);
 
-            if (entity == null) {
+            if (entity == null || entity.Owner != eMail) {
                 return Results.NotFound();
             }
 

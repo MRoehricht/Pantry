@@ -7,6 +7,6 @@ internal class RecipeEntity : EntityBase
     public List<IngredientEntity> Ingredients { get; set; } = new();
     public required RecipeDetailsEntity Details { get; set; } = new();
 
-    public Guid OwnerId { get; set; }
+    public string Owner { get; set; }
     public DateTime CreatedOn { get; set; }
 }

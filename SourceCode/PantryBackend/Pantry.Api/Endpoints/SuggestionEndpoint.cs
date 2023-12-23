@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Pantry.Api.Database.Contexts;
+using Pantry.Services.UserServices;
 using Pantry.Shared.Models.GoodModels;
 
 namespace Pantry.Api.Endpoints {
@@ -12,8 +13,11 @@ namespace Pantry.Api.Endpoints {
             return group;
         }
 
-        private static async Task<IResult> GetSuggestions(IMapper mapper, PantryContext context) {
-            var goods = await context.Goods.AsNoTracking().ToListAsync();
+        private static async Task<IResult> GetSuggestions(IMapper mapper, IHeaderEMailService eMailService, PantryContext context) {
+            var eMail = eMailService.GetHeaderEMail();
+            if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
+            var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
             return Results.Ok(mapper.Map<IEnumerable<GoodSuggestion>>(goods));
         }
     }

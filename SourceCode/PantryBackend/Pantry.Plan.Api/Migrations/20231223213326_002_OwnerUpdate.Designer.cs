@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Pantry.Plan.Api.Database.Contexts;
@@ -11,9 +12,11 @@ using Pantry.Plan.Api.Database.Contexts;
 namespace Pantry.Plan.Api.Migrations
 {
     [DbContext(typeof(PlanContext))]
-    partial class PlanContextModelSnapshot : ModelSnapshot
+    [Migration("20231223213326_002_OwnerUpdate")]
+    partial class _002_OwnerUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -6,6 +6,7 @@ using Pantry.Recipe.Api.Endpoints;
 using Pantry.Recipe.Api.Services.RabbitMqConsumerServices;
 using Pantry.Services.RabbitMqServices;
 using Pantry.Services.RabbitMqServices.DependencyInjection;
+using Pantry.Services.UserServices;
 
 namespace Pantry.Recipe.Api;
 
@@ -34,7 +35,8 @@ public class Program
         builder.Services.AddRabbitMqServices(builder.Configuration);
         builder.Services.AddTransient<IRabbitMqConsumerService, RecipeRabbitMqConsumerService>();
         builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
-
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 
         var app = builder.Build();
 

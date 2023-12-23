@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Database.Entities;
 using Pantry.Services.RabbitMqServices;
+using Pantry.Services.UserServices;
 using Pantry.Shared.Models.GoodModels;
 using Pantry.Shared.Models.GoodModels.MealRequestModels;
 using Pantry.Shared.Models.MessageModes;
@@ -24,10 +25,14 @@ public static class GoodsEndpoint
         return group;
     }
 
-    private static async Task<IResult> DeleteGood(PantryContext context, Guid id) {
+    private static async Task<IResult> DeleteGood(PantryContext context, IHeaderEMailService eMailService, Guid id) {
+
+        var eMail = eMailService.GetHeaderEMail();
+        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
         var entity = await context.Goods.FindAsync(id);
 
-        if (entity == null) {
+        if (entity == null || entity.Owner != eMail) {
             return Results.NotFound();
         }
 
@@ -37,11 +42,14 @@ public static class GoodsEndpoint
         return Results.NoContent();
     }
 
-    private static async Task<IResult> UpdateGood(IRabbitMqPublisher rabbitMqPublisher, PantryContext context, GoodEntity good)
+    private static async Task<IResult> UpdateGood(IRabbitMqPublisher rabbitMqPublisher, IHeaderEMailService eMailService, PantryContext context, GoodEntity good)
     {
+        var eMail = eMailService.GetHeaderEMail();
+        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
         var entity = await context.Goods.FindAsync(good.Id);
 
-        if (entity == null) return Results.NotFound();
+        if (entity == null || entity.Owner != eMail) return Results.NotFound();
 
         if (entity.Name != good.Name) {
             var message = new Ingredient { PantryItemId = entity.Id, Name = good.Name };
@@ -63,8 +71,11 @@ public static class GoodsEndpoint
         return Results.NoContent();
     }
 
-    private static async Task<IResult> CreateGood(IMapper mapper, PantryContext context, GoodCreateDto goodCreateDto) {
-        var entity = new GoodEntity() {Id = Guid.NewGuid(), Name = goodCreateDto.Name};
+    private static async Task<IResult> CreateGood(IMapper mapper, IHeaderEMailService eMailService, PantryContext context, GoodCreateDto goodCreateDto) {
+        var eMail = eMailService.GetHeaderEMail();
+        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
+        var entity = new GoodEntity() {Id = Guid.NewGuid(), Name = goodCreateDto.Name, Owner = eMail };
 
         await context.Goods.AddAsync(entity);
         await context.SaveChangesAsync();
@@ -73,22 +84,30 @@ public static class GoodsEndpoint
         return Results.Created($"/meals/{entity.Id}", mapper.Map<Good>(entity));
     }
 
-    private static async Task<IResult> GetGood(IMapper mapper, PantryContext context, Guid id)
+    private static async Task<IResult> GetGood(IMapper mapper, IHeaderEMailService eMailService, PantryContext context, Guid id)
     {
-        return await context.Goods.FindAsync(id) is GoodEntity good
+        var eMail = eMailService.GetHeaderEMail();
+        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
+        return await context.Goods.FindAsync(id) is GoodEntity good && good.Owner == eMail
             ? Results.Ok(mapper.Map<Good>(good))
             : Results.NotFound();
     }
 
-    private static async Task<IResult> GetGoods(IMapper mapper, PantryContext context)
+    private static async Task<IResult> GetGoods(IMapper mapper, IHeaderEMailService eMailService, PantryContext context)
     {
-        var goods = await context.Goods.AsNoTracking().ToListAsync();
+        var eMail = eMailService.GetHeaderEMail();
+        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
+        var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
         return Results.Ok(mapper.Map<IEnumerable<Good>>(goods));
     }
 
-    private static async Task<IResult> GetGoodsOverview(IMapper mapper, PantryContext context) 
-    {
-        var goods = await context.Goods.AsNoTracking().ToListAsync();
+    private static async Task<IResult> GetGoodsOverview(IMapper mapper, IHeaderEMailService eMailService, PantryContext context) {
+        var eMail = eMailService.GetHeaderEMail();
+        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized();}
+
+        var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
         return Results.Ok(mapper.Map<IEnumerable<GoodsOverview>>(goods).OrderBy(_ => _.Name));
     }
     

@@ -10,7 +10,8 @@
 		Modal,
 		Toast,
 		type ModalComponent,
-		storePopup
+		storePopup,
+		Avatar
 	} from '@skeletonlabs/skeleton';
 	import Navigation from '$lib/components/Navigation/Navigation.svelte';
 	import { page } from '$app/stores';
@@ -61,7 +62,9 @@
 							</svg>
 						</span>
 					</button>
-					<a href="/"> <strong class="text-xl uppercase">PANTRY</strong></a>
+					{#if $page.data.session}
+						<a href="/"> <strong class="text-xl uppercase">PANTRY</strong></a>
+					{/if}
 				</div>
 			</svelte:fragment>
 
@@ -75,7 +78,14 @@
 					GitHub
 				</a>
 				<LightSwitch />
+
 				{#if $page.data.session}
+					<Avatar
+						src={$page.data.session.user?.image ||
+							'https://avatars.githubusercontent.com/u/1000000?s=60&v=4'}
+						width="w-10"
+						rounded="rounded-full"
+					/>
 					<button on:click={() => signOut()} class="btn btn-sm variant-ghost-surface">
 						Abmelden
 					</button>

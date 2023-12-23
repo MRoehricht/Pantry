@@ -15,7 +15,7 @@ namespace Pantry.Api.Services.RabbitMqConsumerServices {
         }
 
         public async Task ProcessMessage<T>(T message, MessageType type) {
-            if (type == MessageType.RegisterGood && typeof(Message<Ingredient>).IsAssignableFrom(typeof(T)) && message is Message<Ingredient> registerGoodMessage) {
+            if (type == MessageType.RegisterGood && typeof(Message<RegisterGoodMessage>).IsAssignableFrom(typeof(T)) && message is Message<RegisterGoodMessage> registerGoodMessage) {
                 await ReactOnRegisterGood(registerGoodMessage.Content);
             }
             else if (type == MessageType.MinimizeGoodsQuantity && typeof(Message<Ingredient>).IsAssignableFrom(typeof(T)) && message is Message<Ingredient> minimizeGoodsQuantityMessage) {
@@ -43,14 +43,14 @@ namespace Pantry.Api.Services.RabbitMqConsumerServices {
 
 
 
-        private async Task ReactOnRegisterGood(Ingredient ingredient) {
-            if (!ingredient.PantryItemId.HasValue) {
+        private async Task ReactOnRegisterGood(RegisterGoodMessage message) {
+            if (!message.Ingredient.PantryItemId.HasValue) {
                 _logger.LogError("PantryItemId is NULL");
                 return;
             }
 
 
-            if (ingredient.PantryItemId == Guid.Empty) {
+            if (message.Ingredient.PantryItemId == Guid.Empty) {
                 _logger.LogError("PantryItemId is nich gültig");
                 return;
             }
@@ -60,9 +60,10 @@ namespace Pantry.Api.Services.RabbitMqConsumerServices {
                 var context = scope.ServiceProvider.GetRequiredService<PantryContext>();
 
                 var entity = new GoodEntity {
-                    Name = ingredient.Name,
-                    Id = ingredient.PantryItemId.Value,
-                    UnitOfMeasurement = ingredient.Unit
+                    Owner = message.Owner,
+                    Name = message.Ingredient.Name,
+                    Id = message.Ingredient.PantryItemId.Value,
+                    UnitOfMeasurement = message.Ingredient.Unit
                 };
 
                 context.Goods.Add(entity);

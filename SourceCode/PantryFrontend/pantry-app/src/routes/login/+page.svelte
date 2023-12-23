@@ -3,9 +3,10 @@
 	import { page } from '$app/stores';
 </script>
 
-<div style="display: flex; justify-content: center; align-items: center;">
-	<h1>SvelteKit Auth Example</h1>
-	<p>
+<div style="justify-content: center; align-items: center;">
+	<h1 class="h1">Willkommen bei Pantry</h1>
+	<br />
+	<div>
 		{#if $page.data.session}
 			{#if $page.data.session.user?.image}
 				<span
@@ -19,12 +20,12 @@
 			</span>
 			<button on:click={() => signOut()} class="button">Sign out</button>
 		{:else}
-			<span class="notSignedInText">You are not signed in</span>
-
+			You are not signed in
+			<br />
 			<button type="button" on:click={() => signIn('github')} class="btn variant-filled">
 				<span><i class="fa-brands fa-github"></i></span>
 				<span>Sign In with GitHub</span>
 			</button>
 		{/if}
-	</p>
+	</div>
 </div>

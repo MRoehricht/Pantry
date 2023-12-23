@@ -6,6 +6,7 @@ using Pantry.Api.Services.RabbitMqConsumerServices;
 using Pantry.Recipe.Api.Configuration;
 using Pantry.Services.RabbitMqServices;
 using Pantry.Services.RabbitMqServices.DependencyInjection;
+using Pantry.Services.UserServices;
 
 namespace Pantry.Api;
 
@@ -39,8 +40,10 @@ public class Program
         builder.Services.AddTransient<IRabbitMqConsumerService, PantryRabbitMqConsumerService>();
 
         builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 
-        
+
         var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? Array.Empty<string>();
         builder.Services.AddCors(opt => {
             opt.AddPolicy(name: PANTRY_ORIGINS, policyBuilder => {
@@ -68,7 +71,6 @@ public class Program
         }
         app.UseCors(PANTRY_ORIGINS);
         app.UseAuthorization();
-
 
         app.MapGroup("/goods").MapGoodsEndpoint();
         app.MapGroup("/goodratings").MapGoodRatingsEndpoint();

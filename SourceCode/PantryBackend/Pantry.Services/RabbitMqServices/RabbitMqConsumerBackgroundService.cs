@@ -76,13 +76,16 @@ public class RabbitMqConsumerBackgroundService : BackgroundService
             var type = (MessageType)doc.RootElement.GetProperty("Type").GetInt32();
 
 
-            if (type == MessageType.RegisterGood || type == MessageType.UpdateIngredientName || type == MessageType.MinimizeGoodsQuantity) {
+            if ( type == MessageType.UpdateIngredientName || type == MessageType.MinimizeGoodsQuantity) {
                 var message = JsonSerializer.Deserialize<Message<Ingredient>>(content);
                 consumerService.ProcessMessage(message, type);
             } else if (type == MessageType.RecipeIsDeleted || type == MessageType.MealWasCooked) {
                 var message = JsonSerializer.Deserialize<Message<Guid>>(content);
                 consumerService.ProcessMessage(message, type);
-            } 
+            } else if (type == MessageType.RegisterGood) {
+                var message = JsonSerializer.Deserialize<Message<RegisterGoodMessage>>(content);
+                consumerService.ProcessMessage(message, type);
+            }
         }
         catch (InvalidOperationException ex) {
             _logger.LogError($"{ex.Message}");

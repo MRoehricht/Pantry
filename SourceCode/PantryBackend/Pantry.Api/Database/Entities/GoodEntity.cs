@@ -5,7 +5,7 @@ namespace Pantry.Api.Database.Entities;
 public class GoodEntity
 {
     public Guid Id { get; set; }
-    public Guid OwnerId { get; set; }
+    public string Owner { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public double Amount { get; set; }
