@@ -52,6 +52,7 @@
 			</svelte:fragment>
 			<span>Rezepte</span>
 		</AppRailAnchor>
+<!--
 		<AppRailAnchor
 			name="recipes-tile"
 			title="Einkaufsliste"
@@ -64,6 +65,7 @@
 			</svelte:fragment>
 			<span>Einkaufsliste</span>
 		</AppRailAnchor>
+ -->
 		<AppRailAnchor
 			name="scanner-tile"
 			title="Waren ein- und ausgang"
