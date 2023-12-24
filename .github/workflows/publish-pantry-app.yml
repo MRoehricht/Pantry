@@ -1,0 +1,20 @@
+name: Build and publish Pantry-APP
+on:
+  push:
+    paths:
+      - 'SourceCode/PantryFrontend/pantry-app/**'   
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - 
+        name: Checkout
+        uses: actions/checkout@v3    
+      - 
+        name: Build and publish "latest" Docker image
+        uses: VaultVulp/gp-docker-action@1.6.0
+        with:          
+          github-token: '${{ secrets.PACKAGE_TOKEN }}'
+          image-name: pantry-app
+          dockerfile: ./SourceCode/PantryFrontend/pantry-app/Dockerfile
+          build-context: ./SourceCode/PantryFrontend/pantry-app/
