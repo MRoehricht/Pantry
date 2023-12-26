@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Pantry.Recipe.Api.Configuration;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Endpoints;
@@ -18,7 +19,31 @@ public class Program
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(conf =>
+        {
+            conf.AddSecurityDefinition("UserEMail", new OpenApiSecurityScheme
+            {
+                Description = "EMail of the user",
+                Name = "UserEMail",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "UserEMailScheme",
+            });
+            var scheme = new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "UserEMail"
+                },
+                In = ParameterLocation.Header,
+            };
+            var requirement = new OpenApiSecurityRequirement
+            {
+                { scheme, Array.Empty<string>() }
+            };
+            conf.AddSecurityRequirement(requirement);
+        });
         builder.Services.AddAutoMapper(typeof(AutomapperConfiguratrion));
 
 
