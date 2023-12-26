@@ -1,4 +1,6 @@
 
+using Microsoft.OpenApi.Models;
+
 namespace Pantry.Scanner.Api;
 
 public class Program

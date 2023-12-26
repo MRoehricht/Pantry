@@ -1,8 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Endpoints;
+using Pantry.Api.Metrics;
 using Pantry.Api.Services.RabbitMqConsumerServices;
 using Pantry.Recipe.Api.Configuration;
 using Pantry.Services.RabbitMqServices;
@@ -69,6 +71,14 @@ public class Program
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 
+        builder.Services.AddOpenTelemetry().WithMetrics(b =>
+        {
+            b.AddPrometheusExporter();
+            //b.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel");
+            b.AddMeter(PantryApiMetrics.MeterName);
+        });
+        builder.Services.AddMetrics();
+        builder.Services.AddSingleton<PantryApiMetrics>();
 
         var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? Array.Empty<string>();
         builder.Services.AddCors(opt =>
@@ -99,7 +109,7 @@ public class Program
         }
         app.UseCors(PANTRY_ORIGINS);
         app.UseAuthorization();
-
+        app.UseOpenTelemetryPrometheusScrapingEndpoint();
         app.MapGroup("/goods").MapGoodsEndpoint();
         app.MapGroup("/goodratings").MapGoodRatingsEndpoint();
         app.MapGroup("/suggestions").MapSuggestionEndpoints();
