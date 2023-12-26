@@ -27,6 +27,7 @@
 	import FindRecipeModal from '$lib/components/Modals/FindRecipeModal.svelte';
 	import { autoUpdate, computePosition, offset, shift, flip, arrow } from '@floating-ui/dom';
 	import { signOut } from '@auth/sveltekit/client';
+	import '@fortawesome/fontawesome-free/css/all.css';
 
 	const modalRegistry: Record<string, ModalComponent> = {
 		RatingModal: { ref: RatingModal },
