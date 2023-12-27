@@ -10,10 +10,19 @@
     <DockerServiceName>pantry.api</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="alertmanager\config.yml" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="grafana\config.monitoring" />
+    <None Include="grafana\provisioning\dashboards\aspnetcore-endpoint.json" />
+    <None Include="grafana\provisioning\dashboards\aspnetcore.json" />
+    <None Include="grafana\provisioning\dashboards\dashboard.yml" />
+    <None Include="grafana\provisioning\dashboards\DockerPrometheusMonitoring.json" />
+    <None Include="grafana\provisioning\dashboards\pantry-api-dashboard.json" />
+    <None Include="grafana\provisioning\datasources\datasource.yml" />
+    <None Include="prometheus\prometheus.yml" />
   </ItemGroup>
 </Project>

@@ -74,8 +74,9 @@ public class Program
         builder.Services.AddOpenTelemetry().WithMetrics(b =>
         {
             b.AddPrometheusExporter();
-            //b.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel");
+            //b.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", PantryApiMetrics.MeterName);
             b.AddMeter(PantryApiMetrics.MeterName);
+            b.AddView("request-duration", new ExplicitBucketHistogramConfiguration { Boundaries = [0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2, 5, 10, 30, 60, 120, 300, 600, 1200, 1800, 3600] });
         });
         builder.Services.AddMetrics();
         builder.Services.AddSingleton<PantryApiMetrics>();
@@ -93,7 +94,7 @@ public class Program
         });
 
         var app = builder.Build();
-
+        app.UseOpenTelemetryPrometheusScrapingEndpoint();
         using (var scope = app.Services.CreateScope())
         {
             //dotnet ef migrations add ...-Script // add-migration ...
@@ -109,7 +110,7 @@ public class Program
         }
         app.UseCors(PANTRY_ORIGINS);
         app.UseAuthorization();
-        app.UseOpenTelemetryPrometheusScrapingEndpoint();
+
         app.MapGroup("/goods").MapGoodsEndpoint();
         app.MapGroup("/goodratings").MapGoodRatingsEndpoint();
         app.MapGroup("/suggestions").MapSuggestionEndpoints();
