@@ -18,6 +18,26 @@ volumes:
     driver: local
 
 services:
+  pantry.app:
+    container_name: pantry-app
+    image: ghcr.io/mroehricht/pantry/pantry-app:latest  
+    ports:
+      - 3000:3000
+    environment:
+      - ORIGIN=http://localhost:3000
+      - PRIVATE_PANTRY_API_URL=http://pantry.api:8080
+      - PRIVATE_RECIPE_API_URL=http://pantry.recipe.api:8080
+      - PRIVATE_PLAN_API_URL=http://pantry.plan.api:8080
+      - GITHUB_ID=16137bbb7e76612a46ca
+      - GITHUB_SECRET=4ea559ac1499d5f66f6f55a761966a00a98bf830
+      - AUTH_SECRET=8212a370713c35e771d2d29480975236
+    restart: always
+    networks:
+      - pantry-network
+    depends_on:
+      - pantry.api
+      - rabbitmq
+
   pantry.recipe.api:
     container_name: pantry-recipe-api
     image: ghcr.io/mroehricht/pantry/pantry-recipe-api:latest    
@@ -34,7 +54,7 @@ services:
       - RABBITMQ__USER=pantry
       - RABBITMQ__PASSWORD=pantry
       - RABBITMQ__QUEUENAME=Pantry.Recipe.Api
-      - ALLOWED_ORIGINS="http://localhost:5173"
+      - ALLOWED_ORIGINS=http://localhost:3000
     restart: always
     networks:
       - pantry-recipe-network   
@@ -79,7 +99,7 @@ services:
       - RABBITMQ__USER=pantry
       - RABBITMQ__PASSWORD=pantry
       - RABBITMQ__QUEUENAME=Pantry.Plan.Api
-      - ALLOWED_ORIGINS="http://localhost:5173"
+      - ALLOWED_ORIGINS=http://localhost:3000
     restart: always
     networks:
       - pantry-plan-network
@@ -124,7 +144,8 @@ services:
       - RABBITMQ__USER=pantry
       - RABBITMQ__PASSWORD=pantry
       - RABBITMQ__QUEUENAME=Pantry.Api
-      - ALLOWED_ORIGINS=http://localhost:5173
+      - ALLOWED_ORIGINS=http://localhost:3000
+      - ASPNETCORE_ENVIRONMENT=Development
     restart: always
     networks:
       - pantry-network
@@ -164,7 +185,7 @@ services:
       - DB_DB=pantry
       - DB_USER=pantry
       - DB_PASSWORD=pantry
-      - ALLOWED_ORIGINS="http://localhost:5173"
+      - ALLOWED_ORIGINS=http://localhost:3000
     restart: always
     networks:
       - pantry-scanner-network
