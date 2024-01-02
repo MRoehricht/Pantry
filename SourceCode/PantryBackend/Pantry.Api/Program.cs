@@ -1,13 +1,12 @@
 
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Endpoints;
 using Pantry.Api.Metrics;
-using Pantry.Api.Services.RabbitMqConsumerServices;
 using Pantry.Recipe.Api.Configuration;
-using Pantry.Services.RabbitMqServices;
 using Pantry.Services.RabbitMqServices.DependencyInjection;
 using Pantry.Services.UserServices;
 
@@ -35,6 +34,30 @@ public class Program
         builder.Services.AddAuthorization();
         builder.Services.AddRabbitMqServices(builder.Configuration);
         builder.Services.AddAutoMapper(typeof(AutomapperConfiguratrion));
+
+        builder.Services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+            x.SetInMemorySagaRepositoryProvider();
+
+            var assembly = typeof(Program).Assembly;
+
+            x.AddConsumers(assembly);
+            x.AddSagaStateMachines(assembly);
+            x.AddSagas(assembly);
+            x.AddActivities(assembly);
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h =>
+                {
+                    h.Username(builder.Configuration["RabbitMQ:User"]);
+                    h.Password(builder.Configuration["RabbitMQ:Password"]);
+                });
+                cfg.ConfigureEndpoints(context);
+            });
+        });
+
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
@@ -65,9 +88,6 @@ public class Program
         });
 
         builder.Services.AddLogging();
-        builder.Services.AddTransient<IRabbitMqConsumerService, PantryRabbitMqConsumerService>();
-
-        builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 

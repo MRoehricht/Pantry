@@ -1,12 +1,10 @@
 
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Pantry.Recipe.Api.Configuration;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Endpoints;
-using Pantry.Recipe.Api.Services.RabbitMqConsumerServices;
-using Pantry.Services.RabbitMqServices;
-using Pantry.Services.RabbitMqServices.DependencyInjection;
 using Pantry.Services.UserServices;
 
 namespace Pantry.Recipe.Api;
@@ -46,8 +44,6 @@ public class Program
         });
         builder.Services.AddAutoMapper(typeof(AutomapperConfiguratrion));
 
-
-
         builder.Services.AddDbContext<RecipeContext>(optionsAction =>
         {
             var postgresHost = builder.Configuration["DB_HOST"];
@@ -57,9 +53,30 @@ public class Program
             var postgresPassword = builder.Configuration["DB_PASSWORD"];
             optionsAction.UseNpgsql($"host={postgresHost};port={postgresPort};database={postgresDatabase};username={postgresUser};password={postgresPassword};");
         });
-        builder.Services.AddRabbitMqServices(builder.Configuration);
-        builder.Services.AddTransient<IRabbitMqConsumerService, RecipeRabbitMqConsumerService>();
-        builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
+
+        builder.Services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+            x.SetInMemorySagaRepositoryProvider();
+
+            var assembly = typeof(Program).Assembly;
+
+            x.AddConsumers(assembly);
+            x.AddSagaStateMachines(assembly);
+            x.AddSagas(assembly);
+            x.AddActivities(assembly);
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h =>
+                {
+                    h.Username(builder.Configuration["RabbitMQ:User"]);
+                    h.Password(builder.Configuration["RabbitMQ:Password"]);
+                });
+                cfg.ConfigureEndpoints(context);
+            });
+        });
+
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 

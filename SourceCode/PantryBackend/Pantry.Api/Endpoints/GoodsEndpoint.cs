@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Database.Entities;
 using Pantry.Api.Metrics;
-using Pantry.Services.RabbitMqServices;
 using Pantry.Services.UserServices;
 using Pantry.Shared.Models.GoodModels;
 using Pantry.Shared.Models.GoodModels.MealRequestModels;
@@ -45,7 +45,7 @@ public static class GoodsEndpoint
         return Results.NoContent();
     }
 
-    private static async Task<IResult> UpdateGood(IRabbitMqPublisher rabbitMqPublisher, IHeaderEMailService eMailService, PantryContext context, GoodEntity good)
+    private static async Task<IResult> UpdateGood(IPublishEndpoint publishEndpoint, IHeaderEMailService eMailService, PantryContext context, GoodEntity good)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -54,10 +54,10 @@ public static class GoodsEndpoint
 
         if (entity == null || entity.Owner != eMail) return Results.NotFound();
 
-        if (entity.Name != good.Name)
+        if (entity.Name != good.Name || entity.UnitOfMeasurement != good.UnitOfMeasurement)
         {
-            var message = new Ingredient { PantryItemId = entity.Id, Name = good.Name };
-            rabbitMqPublisher.SendMessage(message, MessageType.UpdateIngredientName);
+            var message = new UpdateIngredientNameMessage { Ingredient = new Ingredient { PantryItemId = entity.Id, Name = good.Name, Unit = good.UnitOfMeasurement }, Owner = eMail };
+            await publishEndpoint.Publish(message);
         }
 
         entity.Name = good.Name;
@@ -69,6 +69,7 @@ public static class GoodsEndpoint
         entity.CurrentPrice = good.CurrentPrice;
         entity.ShoppinglistName = good.ShoppinglistName;
         entity.Details.Tags = good.Details.Tags;
+        entity.UnitOfMeasurement = good.UnitOfMeasurement;
 
         await context.SaveChangesAsync();
 

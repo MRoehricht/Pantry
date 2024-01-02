@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Database.Entities;
-using Pantry.Services.RabbitMqServices;
 using Pantry.Services.UserServices;
 using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
@@ -21,7 +21,8 @@ public static class IngredientEndpoint
         return group;
     }
 
-    private static async Task<IResult> DeleteIngredient(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name) {
+    private static async Task<IResult> DeleteIngredient(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name)
+    {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
@@ -36,7 +37,8 @@ public static class IngredientEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> UpdateIngredient(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name, Ingredient ingredient) {
+    private static async Task<IResult> UpdateIngredient(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name, Ingredient ingredient)
+    {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
@@ -53,7 +55,7 @@ public static class IngredientEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> CreateIngredient(IMapper mapper, IRabbitMqPublisher rabbitMqPublisher, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, Ingredient ingredient)
+    private static async Task<IResult> CreateIngredient(IMapper mapper, IPublishEndpoint publishEndpoint, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, Ingredient ingredient)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -62,10 +64,11 @@ public static class IngredientEndpoint
         if (recipe != null && recipe.Owner == eMail)
         {
             var entity = mapper.Map<IngredientEntity>(ingredient);
-            if (entity.PantryItemId is null) {
+            if (entity.PantryItemId is null)
+            {
                 entity.PantryItemId = Guid.NewGuid();
                 var messag = new RegisterGoodMessage { Ingredient = mapper.Map<Ingredient>(entity), Owner = eMail };
-                rabbitMqPublisher.SendMessage(messag, MessageType.RegisterGood);
+                await publishEndpoint.Publish(messag);
             }
 
             recipe.Ingredients.Add(entity);
@@ -76,7 +79,8 @@ public static class IngredientEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> GetIngredient(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name) {
+    private static async Task<IResult> GetIngredient(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name)
+    {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 

@@ -1,13 +1,11 @@
 
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Pantry.Plan.Api.Configuration;
 using Pantry.Plan.Api.Database.Contexts;
 using Pantry.Plan.Api.Endpoints;
-using Pantry.Plan.Api.Services.RabbitMqConsumerServices;
-using Pantry.Services.RabbitMqServices;
-using Pantry.Services.RabbitMqServices.DependencyInjection;
 using Pantry.Services.UserServices;
 
 namespace Pantry.Plan.Api;
@@ -66,9 +64,29 @@ public class Program
         });
 
 
-        builder.Services.AddRabbitMqServices(builder.Configuration);
-        builder.Services.AddTransient<IRabbitMqConsumerService, PlanRabbitMqConsumerService>();
-        builder.Services.AddHostedService<RabbitMqConsumerBackgroundService>();
+        builder.Services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+            x.SetInMemorySagaRepositoryProvider();
+
+            var assembly = typeof(Program).Assembly;
+
+            x.AddConsumers(assembly);
+            x.AddSagaStateMachines(assembly);
+            x.AddSagas(assembly);
+            x.AddActivities(assembly);
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h =>
+                {
+                    h.Username(builder.Configuration["RabbitMQ:User"]);
+                    h.Password(builder.Configuration["RabbitMQ:Password"]);
+                });
+                cfg.ConfigureEndpoints(context);
+            });
+        });
+
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 

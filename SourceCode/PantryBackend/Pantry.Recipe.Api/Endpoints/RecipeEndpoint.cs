@@ -1,9 +1,9 @@
 ﻿
 using AutoMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Database.Entities;
-using Pantry.Services.RabbitMqServices;
 using Pantry.Services.UserServices;
 using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
@@ -44,7 +44,7 @@ public static class RecipeEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> DeleteRecipe(IRabbitMqPublisher rabbitMqPublisher, IHeaderEMailService eMailService, RecipeContext context, Guid id)
+    private static async Task<IResult> DeleteRecipe(IPublishEndpoint publishEndpoint, IHeaderEMailService eMailService, RecipeContext context, Guid id)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -54,7 +54,7 @@ public static class RecipeEndpoint
             context.Recipes.Remove(recipe);
             await context.SaveChangesAsync();
 
-            rabbitMqPublisher.SendMessage(id, MessageType.RecipeIsDeleted);
+            await publishEndpoint.Publish(new RecipeIsDeletedMessage { RecipeId = id });
 
             return Results.NoContent();
         }
@@ -89,14 +89,16 @@ public static class RecipeEndpoint
         return Results.Created($"/recipes/{entity.Id}", mapper.Map<Shared.Models.RecipeModels.Recipe>(entity));
     }
 
-    
-    private static async Task<IResult> GetRecipeOverviewById(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context, Guid id) {
+
+    private static async Task<IResult> GetRecipeOverviewById(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context, Guid id)
+    {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
         var recipes = await context.Recipes.FindAsync(id);
 
-        if (await context.Recipes.FindAsync(id) is RecipeEntity recipe && recipe.Owner == eMail) {
+        if (await context.Recipes.FindAsync(id) is RecipeEntity recipe && recipe.Owner == eMail)
+        {
             if (recipe.Description is { Length: > 50 })
                 recipe.Description = recipe.Description[..50];
             return Results.Ok(mapper.Map<RecipeOverview>(recipe));
@@ -107,13 +109,15 @@ public static class RecipeEndpoint
     }
 
 
-    private static async Task<IResult> GetRecipeOverview(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context) {
+    private static async Task<IResult> GetRecipeOverview(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context)
+    {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
         var recipes = await context.Recipes.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
 
-        foreach (var recipe in recipes) {
+        foreach (var recipe in recipes)
+        {
             if (recipe.Description is { Length: > 50 })
                 recipe.Description = recipe.Description[..50];
         }

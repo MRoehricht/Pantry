@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Pantry.Plan.Api.Database.Contexts;
 using Pantry.Plan.Api.Database.Entities;
-using Pantry.Services.RabbitMqServices;
 using Pantry.Services.UserServices;
 using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.PlanModels;
@@ -23,7 +23,7 @@ public static class MealsEndpoint
         return group;
     }
 
-    private static async Task<IResult> UpdateMeal(IMapper mapper, IHeaderEMailService eMailService, IRabbitMqPublisher publisher, PlanContext context, MealUpdateDto meal)
+    private static async Task<IResult> UpdateMeal(IMapper mapper, IHeaderEMailService eMailService, IPublishEndpoint publishEndpoint, PlanContext context, MealUpdateDto meal)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -38,8 +38,9 @@ public static class MealsEndpoint
 
         await context.SaveChangesAsync();
 
-        if (meal.WasCooked) {
-            publisher.SendMessage(meal.RecipeId, MessageType.MealWasCooked);
+        if (meal.WasCooked)
+        {
+            await publishEndpoint.Publish(new MealWasCookedMessage { RecipeId = meal.RecipeId });
         }
 
         return Results.NoContent();
@@ -57,7 +58,7 @@ public static class MealsEndpoint
 
         await context.Meals.AddAsync(entity);
         await context.SaveChangesAsync();
-        
+
         return Results.Created($"/meals/{entity.Id}", mapper.Map<Meal>(entity));
     }
 
@@ -80,7 +81,8 @@ public static class MealsEndpoint
         return Results.Ok(mapper.Map<IEnumerable<Meal>>(recipes));
     }
 
-    private static async Task<IResult> GetMealsByDate(IMapper mapper, IHeaderEMailService eMailService, PlanContext context, DateOnly date) {
+    private static async Task<IResult> GetMealsByDate(IMapper mapper, IHeaderEMailService eMailService, PlanContext context, DateOnly date)
+    {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
