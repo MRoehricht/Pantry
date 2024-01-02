@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { InputChip, popup, getModalStore } from '@skeletonlabs/skeleton';
 	import type { ModalSettings, PopupSettings } from '@skeletonlabs/skeleton';
-	import type { Good, GoodRatingCreateDto } from '$lib/modules/goods/types/Good.js';
+	import {
+		getUnitOfMeasurementDisplayName,
+		UnitOfMeasurementDisplayName,
+		type Good,
+		type GoodRatingCreateDto
+	} from '$lib/modules/goods/types/Good.js';
 	import StringItemLable from '$lib/components/ItemDetails/StringItemLabel.svelte';
 	import NumberItemLabel from '$lib/components/ItemDetails/NumberItemLabel.svelte';
 	import TextareaItemLabel from '$lib/components/ItemDetails/TextareaItemLabel.svelte';
@@ -172,6 +177,25 @@
 	{inEdidtMode}
 	placeholder="1"
 />
+
+<label class="label">
+	<span>Maßeinheit</span>
+	{#if inEdidtMode == false}
+		<input
+			class="input rounded-md p-2"
+			type="text"
+			value={getUnitOfMeasurementDisplayName(good.unitOfMeasurement)}
+			readonly
+		/>
+	{:else}
+		<select bind:value={good.unitOfMeasurement} class="input rounded-md p-2">
+			{#each Object.entries(UnitOfMeasurementDisplayName) as [unit, displayName]}
+				<option value={Number(unit)}>{displayName}</option>
+			{/each}
+		</select>
+	{/if}
+</label>
+
 <StringItemLabel bind:value={good.storageLocation} label="Lagerort" {inEdidtMode} />
 <NumberItemLabel bind:value={good.ean} label="EAN" {inEdidtMode} placeholder="9846568745" />
 

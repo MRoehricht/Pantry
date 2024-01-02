@@ -17,6 +17,7 @@ export type Good = {
 	currentPrice: number | null;
 	shoppinglistName: string | null;
 	details: GoodDetails;
+	unitOfMeasurement: UnitOfMeasurement;
 	//priceHistories: any[];
 };
 
