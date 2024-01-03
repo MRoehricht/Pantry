@@ -2,7 +2,7 @@
 
 namespace Pantry.Recipe.Api.Database.Entities;
 
-internal class IngredientEntity
+public class IngredientEntity
 {
     public required string Name { get; set; }
 

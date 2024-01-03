@@ -6,7 +6,6 @@ using OpenTelemetry.Metrics;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Endpoints;
 using Pantry.Api.Metrics;
-using Pantry.Recipe.Api.Configuration;
 using Pantry.Services.RabbitMqServices.DependencyInjection;
 using Pantry.Services.UserServices;
 
@@ -33,7 +32,6 @@ public class Program
         // Add services to the container.
         builder.Services.AddAuthorization();
         builder.Services.AddRabbitMqServices(builder.Configuration);
-        builder.Services.AddAutoMapper(typeof(AutomapperConfiguratrion));
 
         builder.Services.AddMassTransit(x =>
         {

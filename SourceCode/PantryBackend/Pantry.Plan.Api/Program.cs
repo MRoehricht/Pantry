@@ -49,9 +49,7 @@ public class Program
                 { scheme, Array.Empty<string>() }
             };
             conf.AddSecurityRequirement(requirement);
-        });
-
-        builder.Services.AddAutoMapper(typeof(AutomapperConfiguratrion));
+        });        
 
         builder.Services.AddDbContext<PlanContext>(optionsAction =>
         {

@@ -2,7 +2,7 @@
 
 namespace Pantry.Recipe.Api.Database.Entities;
 
-internal class EntityBase
+public class EntityBase
 {
     [Key]
     public Guid Id { get; set; }

@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Pantry.Api.Configuration;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Database.Entities;
 using Pantry.Api.Metrics;
@@ -76,7 +76,7 @@ public static class GoodsEndpoint
         return Results.NoContent();
     }
 
-    private static async Task<IResult> CreateGood(IMapper mapper, IHeaderEMailService eMailService, PantryContext context, GoodCreateDto goodCreateDto)
+    private static async Task<IResult> CreateGood(IHeaderEMailService eMailService, PantryContext context, GoodCreateDto goodCreateDto)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -86,24 +86,24 @@ public static class GoodsEndpoint
         await context.Goods.AddAsync(entity);
         await context.SaveChangesAsync();
 
-
-        return Results.Created($"/meals/{entity.Id}", mapper.Map<Good>(entity));
+        var mapper = new PantryMapper();
+        return Results.Created($"/meals/{entity.Id}", mapper.MapToGood(entity));
     }
 
-    private static async Task<IResult> GetGood(IMapper mapper, IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context, Guid id)
+    private static async Task<IResult> GetGood(IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context, Guid id)
     {
         pantryApiMetrics.IncrementRequestsCounter();
         using var _ = pantryApiMetrics.TrackRequestsDuration();
 
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
-
+        var mapper = new PantryMapper();
         return await context.Goods.FindAsync(id) is GoodEntity good && good.Owner == eMail
-            ? Results.Ok(mapper.Map<Good>(good))
+            ? Results.Ok(mapper.MapToGood(good))
             : Results.NotFound();
     }
 
-    private static async Task<IResult> GetGoods(IMapper mapper, IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
+    private static async Task<IResult> GetGoods(IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
     {
         pantryApiMetrics.IncrementRequestsCounter();
         using var _ = pantryApiMetrics.TrackRequestsDuration();
@@ -112,10 +112,11 @@ public static class GoodsEndpoint
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
         var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
-        return Results.Ok(mapper.Map<IEnumerable<Good>>(goods));
+        var mapper = new PantryMapper();
+        return Results.Ok(mapper.MapToGoods(goods));
     }
 
-    private static async Task<IResult> GetGoodsOverview(IMapper mapper, IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
+    private static async Task<IResult> GetGoodsOverview(IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
     {
         pantryApiMetrics.IncrementRequestsCounter();
         using var _ = pantryApiMetrics.TrackRequestsDuration();
@@ -123,8 +124,9 @@ public static class GoodsEndpoint
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
-        var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
-        return Results.Ok(mapper.Map<IEnumerable<GoodsOverview>>(goods).OrderBy(_ => _.Name));
+        var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).OrderBy(_ => _.Name).ToListAsync();
+        var mapper = new PantryMapper();
+        return Results.Ok(mapper.MapToGoodsOverviews(goods));
     }
 
 }

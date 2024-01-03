@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using MassTransit;
+﻿using MassTransit;
+using Pantry.Recipe.Api.Configuration;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Database.Entities;
 using Pantry.Services.UserServices;
@@ -55,7 +55,7 @@ public static class IngredientEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> CreateIngredient(IMapper mapper, IPublishEndpoint publishEndpoint, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, Ingredient ingredient)
+    private static async Task<IResult> CreateIngredient(IPublishEndpoint publishEndpoint, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, Ingredient ingredient)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -63,11 +63,13 @@ public static class IngredientEndpoint
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail)
         {
-            var entity = mapper.Map<IngredientEntity>(ingredient);
+            var mapper = new RecipeMapper();
+            var entity = mapper.MapToIngredientEntity(ingredient);
             if (entity.PantryItemId is null)
             {
                 entity.PantryItemId = Guid.NewGuid();
-                var messag = new RegisterGoodMessage { Ingredient = mapper.Map<Ingredient>(entity), Owner = eMail };
+
+                var messag = new RegisterGoodMessage { Ingredient = mapper.MapToIngredient(entity), Owner = eMail };
                 await publishEndpoint.Publish(messag);
             }
 
@@ -79,7 +81,7 @@ public static class IngredientEndpoint
         return Results.NotFound();
     }
 
-    private static async Task<IResult> GetIngredient(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name)
+    private static async Task<IResult> GetIngredient(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string name)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -87,12 +89,13 @@ public static class IngredientEndpoint
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail && recipe.Ingredients.FirstOrDefault(i => i.Name == name) is IngredientEntity ingredientEntity)
         {
-            return Results.Ok(mapper.Map<Ingredient>(ingredientEntity));
+            var mapper = new RecipeMapper();
+            return Results.Ok(mapper.MapToIngredient(ingredientEntity));
         }
         return Results.NotFound();
     }
 
-    private static async Task<IResult> GetIngredients(IMapper mapper, IHeaderEMailService eMailService, RecipeContext context, Guid recipeId)
+    private static async Task<IResult> GetIngredients(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -100,7 +103,8 @@ public static class IngredientEndpoint
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail)
         {
-            return Results.Ok(mapper.Map<IEnumerable<Ingredient>>(recipe.Ingredients));
+            var mapper = new RecipeMapper();
+            return Results.Ok(mapper.MapToIngredients(recipe.Ingredients));
         }
         return Results.NotFound();
     }

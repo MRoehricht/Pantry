@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Pantry.Plan.Api.Configuration;
 using Pantry.Plan.Api.Database.Contexts;
 using Pantry.Plan.Api.Database.Entities;
 using Pantry.Services.UserServices;
@@ -23,7 +23,7 @@ public static class MealsEndpoint
         return group;
     }
 
-    private static async Task<IResult> UpdateMeal(IMapper mapper, IHeaderEMailService eMailService, IPublishEndpoint publishEndpoint, PlanContext context, MealUpdateDto meal)
+    private static async Task<IResult> UpdateMeal(IHeaderEMailService eMailService, IPublishEndpoint publishEndpoint, PlanContext context, MealUpdateDto meal)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
@@ -46,12 +46,15 @@ public static class MealsEndpoint
         return Results.NoContent();
     }
 
-    private static async Task<IResult> CreateMeal(IMapper mapper, IHeaderEMailService eMailService, PlanContext context, MealCreateDto meal)
+    private static async Task<IResult> CreateMeal(IHeaderEMailService eMailService, PlanContext context, MealCreateDto meal)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
-        var entity = mapper.Map<MealEntity>(meal);
+        if (meal == null) return Results.BadRequest();
+
+        var mapper = new PlanMapper();
+        var entity = mapper.MealCreateDtoToMealEntity(meal);
 
         entity.Id = Guid.NewGuid();
         entity.Owner = eMail;
@@ -59,34 +62,37 @@ public static class MealsEndpoint
         await context.Meals.AddAsync(entity);
         await context.SaveChangesAsync();
 
-        return Results.Created($"/meals/{entity.Id}", mapper.Map<Meal>(entity));
+        return Results.Created($"/meals/{entity.Id}", mapper.MealEntityToMeal(entity));
     }
 
-    private static async Task<IResult> GetMeal(IMapper mapper, IHeaderEMailService eMailService, PlanContext context, Guid id)
+    private static async Task<IResult> GetMeal(IHeaderEMailService eMailService, PlanContext context, Guid id)
     {
+        var mapper = new PlanMapper();
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
         return await context.Meals.FindAsync(id) is MealEntity meal && meal.Owner == eMail
-            ? Results.Ok(mapper.Map<Meal>(meal))
+            ? Results.Ok(mapper.MealEntityToMeal(meal))
             : Results.NotFound();
     }
 
-    private static async Task<IResult> GetMeals(IMapper mapper, IHeaderEMailService eMailService, PlanContext context)
+    private static async Task<IResult> GetMeals(IHeaderEMailService eMailService, PlanContext context)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        var mapper = new PlanMapper();
 
         var recipes = await context.Meals.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
-        return Results.Ok(mapper.Map<IEnumerable<Meal>>(recipes));
+        return Results.Ok(mapper.MealEntitiesToMeals(recipes));
     }
 
-    private static async Task<IResult> GetMealsByDate(IMapper mapper, IHeaderEMailService eMailService, PlanContext context, DateOnly date)
+    private static async Task<IResult> GetMealsByDate(IHeaderEMailService eMailService, PlanContext context, DateOnly date)
     {
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        var mapper = new PlanMapper();
 
-        var recipes = await context.Meals.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
-        return Results.Ok(mapper.Map<IEnumerable<Meal>>(recipes.Where(_ => _.Date == date)));
+        var recipes = await context.Meals.AsNoTracking().Where(e => e.Owner == eMail && e.Date == date).ToListAsync();
+        return Results.Ok(mapper.MealEntitiesToMeals(recipes));
     }
 }

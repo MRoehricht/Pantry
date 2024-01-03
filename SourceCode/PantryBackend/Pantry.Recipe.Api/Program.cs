@@ -2,7 +2,6 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Pantry.Recipe.Api.Configuration;
 using Pantry.Recipe.Api.Database.Contexts;
 using Pantry.Recipe.Api.Endpoints;
 using Pantry.Services.UserServices;
@@ -42,7 +41,6 @@ public class Program
             };
             conf.AddSecurityRequirement(requirement);
         });
-        builder.Services.AddAutoMapper(typeof(AutomapperConfiguratrion));
 
         builder.Services.AddDbContext<RecipeContext>(optionsAction =>
         {
