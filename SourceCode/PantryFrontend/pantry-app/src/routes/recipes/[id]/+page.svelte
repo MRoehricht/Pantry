@@ -258,7 +258,7 @@
 	</div>
 </div>
 
-<div class="card p-4 max-w-sm" data-popup="popupClick">
+<div class="card p-4 max-w-sm popup-box" data-popup="popupClick">
 	<div class="grid grid-cols-1 gap-2">
 		<button id="rate" class="btn variant-filled-primary" on:click={showRatingModal}
 			>Bewerten</button
@@ -405,3 +405,9 @@
 		</ol>
 	</div>
 </div>
+
+<style>
+	.popup-box {
+		z-index: 10;
+	}
+</style>

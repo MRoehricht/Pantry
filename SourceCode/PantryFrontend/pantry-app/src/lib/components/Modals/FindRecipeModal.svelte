@@ -94,7 +94,7 @@
 				minlength="1"
 				use:popup={popupRecipeSettings}
 			/>
-			<div data-popup="popupAutocomplete" class="card">
+			<div data-popup="popupAutocomplete" class="card popup-box">
 				<Autocomplete
 					bind:input={selectedRecipe.name}
 					options={recipeOptions}
@@ -120,3 +120,9 @@
     </footer>
 	</div>
 {/if}
+
+<style>
+	.popup-box {
+		z-index: 10;
+	}
+</style>

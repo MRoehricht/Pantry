@@ -120,12 +120,13 @@
 					use:popup={popupSettings}
 					readonly={inEditMode}
 				/>
-				<div data-popup="popupAutocomplete" class="card">
+				<div data-popup="popupAutocomplete" class="card popup-box">
 					<Autocomplete
 						bind:input={ingredient.name}
 						options={goodOptions}
 						on:selection={onPopupDemoSelect}
 						limit={5}
+						emptyState=""
 					/>
 				</div>
 				{#if showNameError}
@@ -175,3 +176,9 @@
     </footer>
 	</div>
 {/if}
+
+<style>
+	.popup-box {
+		z-index: 10;
+	}
+</style>
