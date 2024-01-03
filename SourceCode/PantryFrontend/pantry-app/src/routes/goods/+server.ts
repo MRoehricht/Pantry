@@ -7,11 +7,8 @@ export async function PUT({ request }): Promise<Response> {
 	if (!session?.user?.email) {
 		throw redirect(307, '/');
 	}
-	console.log('PUT');
-	console.log(session);
 
 	const { good } = await request.json();
-	console.log(good);
 	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/', {
 		method: 'PUT',
 		body: JSON.stringify(good),
@@ -20,7 +17,7 @@ export async function PUT({ request }): Promise<Response> {
 			UserEMail: session?.user?.email
 		}
 	});
-	console.log(response);
+
 	return response;
 }
 
@@ -29,8 +26,6 @@ export async function POST({ request }): Promise<Response> {
 	if (!session?.user?.email) {
 		throw redirect(307, '/');
 	}
-	console.log('POST');
-	console.log(session);
 	const { createDto } = await request.json();
 	const response = await fetch(env.PRIVATE_PANTRY_API_URL + '/goods/', {
 		method: 'POST',
