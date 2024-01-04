@@ -116,17 +116,25 @@ public static class GoodsEndpoint
         return Results.Ok(mapper.MapToGoods(goods));
     }
 
-    private static async Task<IResult> GetGoodsOverview(IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
+
+    private static async Task<IResult> GetGoodsOverview(DiagnosticsConfig diagnosticsConfig, IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
     {
-        pantryApiMetrics.IncrementRequestsCounter();
-        using var _ = pantryApiMetrics.TrackRequestsDuration();
+        using (var activity = diagnosticsConfig.ActivitySource.StartActivity("GetGoodsOverview"))
+        {
+            pantryApiMetrics.IncrementRequestsCounter();
+            using var _ = pantryApiMetrics.TrackRequestsDuration();
 
-        var eMail = eMailService.GetHeaderEMail();
-        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+            var eMail = eMailService.GetHeaderEMail();
+            if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
-        var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).OrderBy(_ => _.Name).ToListAsync();
-        var mapper = new PantryMapper();
-        return Results.Ok(mapper.MapToGoodsOverviews(goods));
+            activity?.SetTag("eMail", eMail);
+
+            using var activity2 = diagnosticsConfig.ActivitySource.StartActivity("LoadData");
+
+            var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).OrderBy(_ => _.Name).ToListAsync();
+            var mapper = new PantryMapper();
+            return Results.Ok(mapper.MapToGoodsOverviews(goods));
+        }
     }
 
 }

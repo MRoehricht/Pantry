@@ -150,6 +150,9 @@ services:
       - RABBITMQ__QUEUENAME=Pantry.Api
       - ALLOWED_ORIGINS=http://localhost:3000
       - ASPNETCORE_ENVIRONMENT=Development
+      - JAEGER__PROTOCOL=http
+      - JAEGER__HOST=jaeger
+      - JAEGER__PORT=4317
     restart: always
     networks:
       - pantry-network
@@ -271,3 +274,14 @@ services:
     networks:
       - pantry-network
     restart: always
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    ports:
+      - 13133:13133
+      - 16686:16686
+      - 4317:4317
+    restart: always
+    networks:
+      - pantry-network

@@ -23,6 +23,8 @@
     <None Include="grafana\provisioning\dashboards\DockerPrometheusMonitoring.json" />
     <None Include="grafana\provisioning\dashboards\pantry-api-dashboard.json" />
     <None Include="grafana\provisioning\datasources\datasource.yml" />
+    <None Include="jaeger\jaeger-ui.json" />
+    <None Include="otel-collector\otel-collector-config.yml" />
     <None Include="prometheus\prometheus.yml" />
   </ItemGroup>
 </Project>

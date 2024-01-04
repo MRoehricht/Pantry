@@ -3,6 +3,9 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Pantry.Api.Configuration;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Endpoints;
 using Pantry.Api.Metrics;
@@ -89,15 +92,29 @@ public class Program
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 
-        builder.Services.AddOpenTelemetry().WithMetrics(b =>
+        builder.Services.AddOpenTelemetry().ConfigureResource((resourceBuilder) => resourceBuilder.AddService("Pantry.API"))
+        .WithMetrics(b =>
         {
             b.AddPrometheusExporter();
             //b.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", PantryApiMetrics.MeterName);
             b.AddMeter(PantryApiMetrics.MeterName);
             b.AddView("request-duration", new ExplicitBucketHistogramConfiguration { Boundaries = [0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2, 5, 10, 30, 60, 120, 300, 600, 1200, 1800, 3600] });
+        }).WithTracing(b =>
+        {
+            b.AddAspNetCoreInstrumentation()
+             .AddHttpClientInstrumentation()
+             .AddEntityFrameworkCoreInstrumentation()
+            .AddOtlpExporter(opts =>
+            {
+                opts.Endpoint =
+                    new Uri($"{builder.Configuration["Jaeger:Protocol"]}://{builder.Configuration["Jaeger:Host"]}:{builder.Configuration["Jaeger:Port"]}");
+            });
         });
+        builder.Services.AddSingleton(new DiagnosticsConfig());
         builder.Services.AddMetrics();
         builder.Services.AddSingleton<PantryApiMetrics>();
+
+
 
         var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? Array.Empty<string>();
         builder.Services.AddCors(opt =>

@@ -138,6 +138,9 @@ services:
       - RABBITMQ__PASSWORD=pantry
       - RABBITMQ__QUEUENAME=Pantry.Api
       - ALLOWED_ORIGINS=http://localhost:5173
+      - JAEGER__PROTOCOL=http
+      - JAEGER__HOST=jaeger
+      - JAEGER__PORT=4317
     restart: always
     networks:
       - pantry-network
@@ -318,3 +321,19 @@ services:
     networks:
       - pantry-network
     restart: always
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: jaeger
+    ports:      
+      - 16686:16686
+      - 4317:4317
+    restart: always
+    volumes:
+      - "./jaeger/jaeger-ui.json:/etc/jaeger/jaeger-ui.json"
+    command: --query.ui-config /etc/jaeger/jaeger-ui.json
+    environment:
+      - METRICS_STORAGE_TYPE=prometheus
+      - PROMETHEUS_SERVER_URL=http://prometheus:9090
+    networks:
+      - pantry-network
