@@ -4,6 +4,7 @@ using Pantry.Api.Database.Entities;
 using Pantry.Services.UserServices;
 using Pantry.Shared.Models.GoodModels;
 using Pantry.Shared.Models.GoodModels.MealRequestModels;
+using System.Diagnostics;
 
 namespace Pantry.Api.Endpoints
 {
@@ -22,6 +23,9 @@ namespace Pantry.Api.Endpoints
             var eMail = eMailService.GetHeaderEMail();
             if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
 
+            Activity.Current?.SetTag(DiagnosticsNames.PantryGoodId, id);
+            Activity.Current?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
+
             var mapper = new PantryMapper();
             return await context.Goods.FindAsync(id) is GoodEntity good && good.Owner == eMail
                 ? Results.Ok(mapper.MapToGoodRating(good))
@@ -32,6 +36,9 @@ namespace Pantry.Api.Endpoints
         {
             var eMail = eMailService.GetHeaderEMail();
             if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+
+            Activity.Current?.SetTag(DiagnosticsNames.PantryGoodId, goodRating.GoodId);
+            Activity.Current?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
 
             var entity = await context.Goods.FindAsync(goodRating.GoodId);
 

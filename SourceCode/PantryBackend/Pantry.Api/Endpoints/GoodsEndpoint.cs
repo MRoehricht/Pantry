@@ -9,6 +9,7 @@ using Pantry.Shared.Models.GoodModels;
 using Pantry.Shared.Models.GoodModels.MealRequestModels;
 using Pantry.Shared.Models.MessageModes;
 using Pantry.Shared.Models.RecipeModels;
+using System.Diagnostics;
 
 namespace Pantry.Api.Endpoints;
 
@@ -28,11 +29,13 @@ public static class GoodsEndpoint
 
     private static async Task<IResult> DeleteGood(PantryContext context, IHeaderEMailService eMailService, Guid id)
     {
-
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity(DiagnosticsNames.DeleteGood);
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        Activity.Current?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
 
         var entity = await context.Goods.FindAsync(id);
+        Activity.Current?.SetTag(DiagnosticsNames.PantryGoodId, id);
 
         if (entity == null || entity.Owner != eMail)
         {
@@ -47,10 +50,13 @@ public static class GoodsEndpoint
 
     private static async Task<IResult> UpdateGood(IPublishEndpoint publishEndpoint, IHeaderEMailService eMailService, PantryContext context, GoodEntity good)
     {
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity(DiagnosticsNames.UpdateGood);
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        activity?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
 
         var entity = await context.Goods.FindAsync(good.Id);
+        activity?.SetTag(DiagnosticsNames.PantryGoodId, good.Id);
 
         if (entity == null || entity.Owner != eMail) return Results.NotFound();
 
@@ -78,8 +84,10 @@ public static class GoodsEndpoint
 
     private static async Task<IResult> CreateGood(IHeaderEMailService eMailService, PantryContext context, GoodCreateDto goodCreateDto)
     {
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity(DiagnosticsNames.CreateGood);
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        activity?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
 
         var entity = new GoodEntity() { Id = Guid.NewGuid(), Name = goodCreateDto.Name, Owner = eMail };
 
@@ -92,11 +100,15 @@ public static class GoodsEndpoint
 
     private static async Task<IResult> GetGood(IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context, Guid id)
     {
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity(DiagnosticsNames.GetGood);
         pantryApiMetrics.IncrementRequestsCounter();
         using var _ = pantryApiMetrics.TrackRequestsDuration();
 
         var eMail = eMailService.GetHeaderEMail();
         if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        activity?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
+        activity?.SetTag(DiagnosticsNames.PantryGoodId, id);
+
         var mapper = new PantryMapper();
         return await context.Goods.FindAsync(id) is GoodEntity good && good.Owner == eMail
             ? Results.Ok(mapper.MapToGood(good))
@@ -105,11 +117,19 @@ public static class GoodsEndpoint
 
     private static async Task<IResult> GetGoods(IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
     {
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity(DiagnosticsNames.GetGoods);
+
         pantryApiMetrics.IncrementRequestsCounter();
         using var _ = pantryApiMetrics.TrackRequestsDuration();
 
         var eMail = eMailService.GetHeaderEMail();
-        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        if (string.IsNullOrEmpty(eMail))
+        {
+            activity?.AddEvent(new ActivityEvent("Unauthorized"));
+            return Results.Unauthorized();
+        }
+
+        activity?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
 
         var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).ToListAsync();
         var mapper = new PantryMapper();
@@ -117,24 +137,25 @@ public static class GoodsEndpoint
     }
 
 
-    private static async Task<IResult> GetGoodsOverview(DiagnosticsConfig diagnosticsConfig, IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
+    private static async Task<IResult> GetGoodsOverview(IHeaderEMailService eMailService, PantryApiMetrics pantryApiMetrics, PantryContext context)
     {
-        using (var activity = diagnosticsConfig.ActivitySource.StartActivity("GetGoodsOverview"))
+        using var activity = DiagnosticsConfig.ActivitySource.StartActivity(DiagnosticsNames.GetGoodsOverview);
+        pantryApiMetrics.IncrementRequestsCounter();
+        using var _ = pantryApiMetrics.TrackRequestsDuration();
+
+        var eMail = eMailService.GetHeaderEMail();
+        if (string.IsNullOrEmpty(eMail))
         {
-            pantryApiMetrics.IncrementRequestsCounter();
-            using var _ = pantryApiMetrics.TrackRequestsDuration();
-
-            var eMail = eMailService.GetHeaderEMail();
-            if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
-
-            activity?.SetTag("eMail", eMail);
-
-            using var activity2 = diagnosticsConfig.ActivitySource.StartActivity("LoadData");
-
-            var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).OrderBy(_ => _.Name).ToListAsync();
-            var mapper = new PantryMapper();
-            return Results.Ok(mapper.MapToGoodsOverviews(goods));
+            activity?.AddEvent(new ActivityEvent("Unauthorized"));
+            return Results.Unauthorized();
         }
+
+        activity?.SetTag(DiagnosticsNames.PantryUserEMail, eMail);
+
+        var goods = await context.Goods.AsNoTracking().Where(e => e.Owner == eMail).OrderBy(_ => _.Name).ToListAsync();
+        var mapper = new PantryMapper();
+        return Results.Ok(mapper.MapToGoodsOverviews(goods));
+
     }
 
 }

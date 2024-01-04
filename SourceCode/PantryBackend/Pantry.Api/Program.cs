@@ -104,17 +104,16 @@ public class Program
             b.AddAspNetCoreInstrumentation()
              .AddHttpClientInstrumentation()
              .AddEntityFrameworkCoreInstrumentation()
+             .AddSource(DiagnosticsConfig.ActivitySource.Name)
             .AddOtlpExporter(opts =>
             {
                 opts.Endpoint =
                     new Uri($"{builder.Configuration["Jaeger:Protocol"]}://{builder.Configuration["Jaeger:Host"]}:{builder.Configuration["Jaeger:Port"]}");
             });
         });
-        builder.Services.AddSingleton(new DiagnosticsConfig());
+        
         builder.Services.AddMetrics();
         builder.Services.AddSingleton<PantryApiMetrics>();
-
-
 
         var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? Array.Empty<string>();
         builder.Services.AddCors(opt =>

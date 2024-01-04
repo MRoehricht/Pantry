@@ -2,8 +2,8 @@
 
 namespace Pantry.Api.Configuration;
 
-public class DiagnosticsConfig
+public static class DiagnosticsConfig
 {
     public const string ServiceName = "Pantry.Api";
-    public ActivitySource ActivitySource = new(ServiceName);
+    public static ActivitySource ActivitySource = new(ServiceName);
 }
