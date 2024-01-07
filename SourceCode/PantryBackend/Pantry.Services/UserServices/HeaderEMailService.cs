@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Pantry.Services.UserServices {
-    public class HeaderEMailService : IHeaderEMailService {
-        private readonly IHttpContextAccessor _httpContextAccessor;
+namespace Pantry.Services.UserServices;
 
-        public HeaderEMailService(IHttpContextAccessor httpContextAccessor) {
-            _httpContextAccessor = httpContextAccessor;
-        }
+public class HeaderEMailService(IHttpContextAccessor httpContextAccessor) : IHeaderEMailService
+{
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
-        public string GetHeaderEMail() {
-            return _httpContextAccessor.HttpContext.Request.Headers["UserEMail"];
-        }
+    public string? GetHeaderEMail()
+    {
+        return _httpContextAccessor.HttpContext.Request.Headers["UserEMail"];
     }
 }

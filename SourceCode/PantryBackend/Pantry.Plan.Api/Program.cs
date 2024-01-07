@@ -1,11 +1,18 @@
 
+using HealthChecks.UI.Client;
 using MassTransit;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Pantry.Plan.Api.Configuration;
 using Pantry.Plan.Api.Database.Contexts;
 using Pantry.Plan.Api.Endpoints;
+using Pantry.Services.Database;
+using Pantry.Services.RabbitMqServices.DependencyInjection;
 using Pantry.Services.UserServices;
 
 namespace Pantry.Plan.Api;
@@ -49,16 +56,11 @@ public class Program
                 { scheme, Array.Empty<string>() }
             };
             conf.AddSecurityRequirement(requirement);
-        });        
+        });
 
         builder.Services.AddDbContext<PlanContext>(optionsAction =>
         {
-            var postgresHost = builder.Configuration["DB_HOST"];
-            var postgresPort = builder.Configuration["DB_PORT"];
-            var postgresDatabase = builder.Configuration["DB_DB"];
-            var postgresUser = builder.Configuration["DB_USER"];
-            var postgresPassword = builder.Configuration["DB_PASSWORD"];
-            optionsAction.UseNpgsql($"host={postgresHost};port={postgresPort};database={postgresDatabase};username={postgresUser};password={postgresPassword};");
+            optionsAction.UseNpgsql(DatabaseConfigurationManager.CreateDatabaseConfiguration(builder.Configuration).GetConnectionString());
         });
 
 
@@ -88,7 +90,34 @@ public class Program
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 
+        builder.Services.AddOpenTelemetry().ConfigureResource(
+            (resourceBuilder) => resourceBuilder.AddService("Pantry.Plan.API"))
+        .WithMetrics(b =>
+        {
+            b.AddPrometheusExporter();
+            b.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel");
+        }).WithTracing(b =>
+        {
+            b.AddAspNetCoreInstrumentation()
+             .AddHttpClientInstrumentation()
+             .AddEntityFrameworkCoreInstrumentation()
+             .AddSource(DiagnosticsConfig.ActivitySource.Name)
+            .AddOtlpExporter(opts =>
+            {
+                opts.Endpoint =
+                    new Uri($"{builder.Configuration["Jaeger:Protocol"]}://{builder.Configuration["Jaeger:Host"]}:{builder.Configuration["Jaeger:Port"]}");
+            });
+        });
+
+        builder.Services.AddMetrics();
+
+
+        builder.Services.AddHealthChecks()
+            .AddNpgSql(DatabaseConfigurationManager.CreateDatabaseConfiguration(builder.Configuration).GetConnectionString(), name: "Pantry.Plan.Api.Postgres")
+            .AddRabbitMQ(RabbitMqConfigurationManager.CreateRabbitMqConfiguration(builder.Configuration).GetConnectionString(), name: "RabbitMQ");
+
         var app = builder.Build();
+        app.UseOpenTelemetryPrometheusScrapingEndpoint();
         using (var scope = app.Services.CreateScope())
         {
             //dotnet ef migrations add ...-Script // add-migration ...
@@ -103,6 +132,10 @@ public class Program
             app.UseSwaggerUI();
         }
 
+        app.UseHealthChecks("/health", new HealthCheckOptions
+        {
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
         app.MapGroup("/meals").MapMealsEndpoint();
 
         app.Run();

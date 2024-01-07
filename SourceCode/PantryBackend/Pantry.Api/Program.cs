@@ -1,5 +1,7 @@
 
+using HealthChecks.UI.Client;
 using MassTransit;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry.Metrics;
@@ -9,6 +11,7 @@ using Pantry.Api.Configuration;
 using Pantry.Api.Database.Contexts;
 using Pantry.Api.Endpoints;
 using Pantry.Api.Metrics;
+using Pantry.Services.Database;
 using Pantry.Services.RabbitMqServices.DependencyInjection;
 using Pantry.Services.UserServices;
 
@@ -24,17 +27,11 @@ public class Program
 
         builder.Services.AddDbContext<PantryContext>(optionsAction =>
         {
-            var postgresHost = builder.Configuration["DB_HOST"];
-            var postgresPort = builder.Configuration["DB_PORT"];
-            var postgresDatabase = builder.Configuration["DB_DB"];
-            var postgresUser = builder.Configuration["DB_USER"];
-            var postgresPassword = builder.Configuration["DB_PASSWORD"];
-            optionsAction.UseNpgsql($"host={postgresHost};port={postgresPort};database={postgresDatabase};username={postgresUser};password={postgresPassword};");
+            optionsAction.UseNpgsql(DatabaseConfigurationManager.CreateDatabaseConfiguration(builder.Configuration).GetConnectionString());
         });
 
         // Add services to the container.
         builder.Services.AddAuthorization();
-        builder.Services.AddRabbitMqServices(builder.Configuration);
 
         builder.Services.AddMassTransit(x =>
         {
@@ -111,11 +108,11 @@ public class Program
                     new Uri($"{builder.Configuration["Jaeger:Protocol"]}://{builder.Configuration["Jaeger:Host"]}:{builder.Configuration["Jaeger:Port"]}");
             });
         });
-        
+
         builder.Services.AddMetrics();
         builder.Services.AddSingleton<PantryApiMetrics>();
 
-        var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? Array.Empty<string>();
+        var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? [];
         builder.Services.AddCors(opt =>
         {
             opt.AddPolicy(name: PANTRY_ORIGINS, policyBuilder =>
@@ -126,6 +123,10 @@ public class Program
                     .AllowAnyMethod();
             });
         });
+
+        builder.Services.AddHealthChecks()
+            .AddNpgSql(DatabaseConfigurationManager.CreateDatabaseConfiguration(builder.Configuration).GetConnectionString(), name: "Pantry.Api.Postgres")
+            .AddRabbitMQ(RabbitMqConfigurationManager.CreateRabbitMqConfiguration(builder.Configuration).GetConnectionString(), name: "RabbitMQ");
 
         var app = builder.Build();
         app.UseOpenTelemetryPrometheusScrapingEndpoint();
@@ -144,7 +145,10 @@ public class Program
         }
         app.UseCors(PANTRY_ORIGINS);
         app.UseAuthorization();
-
+        app.UseHealthChecks("/health", new HealthCheckOptions
+        {
+            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+        });
         app.MapGroup("/goods").MapGoodsEndpoint();
         app.MapGroup("/goodratings").MapGoodRatingsEndpoint();
         app.MapGroup("/suggestions").MapSuggestionEndpoints();
