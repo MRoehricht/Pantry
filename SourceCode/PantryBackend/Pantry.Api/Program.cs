@@ -1,9 +1,12 @@
 
 using HealthChecks.UI.Client;
 using MassTransit;
+using MassTransit.Logging;
+using MassTransit.Monitoring;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -95,13 +98,16 @@ public class Program
             b.AddPrometheusExporter();
             //b.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", PantryApiMetrics.MeterName);
             b.AddMeter(PantryApiMetrics.MeterName);
+            b.AddMeter(InstrumentationOptions.MeterName);
             b.AddView("request-duration", new ExplicitBucketHistogramConfiguration { Boundaries = [0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2, 5, 10, 30, 60, 120, 300, 600, 1200, 1800, 3600] });
         }).WithTracing(b =>
         {
             b.AddAspNetCoreInstrumentation()
              .AddHttpClientInstrumentation()
              .AddEntityFrameworkCoreInstrumentation()
+             .AddNpgsql()
              .AddSource(DiagnosticsConfig.ActivitySource.Name)
+             .AddSource(DiagnosticHeaders.DefaultListenerName)
             .AddOtlpExporter(opts =>
             {
                 opts.Endpoint =

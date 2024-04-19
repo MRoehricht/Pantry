@@ -1,10 +1,13 @@
 
 using HealthChecks.UI.Client;
 using MassTransit;
+using MassTransit.Logging;
+using MassTransit.Monitoring;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
@@ -96,12 +99,15 @@ public class Program
         {
             b.AddPrometheusExporter();
             b.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel");
+            b.AddMeter(InstrumentationOptions.MeterName);
         }).WithTracing(b =>
         {
             b.AddAspNetCoreInstrumentation()
              .AddHttpClientInstrumentation()
              .AddEntityFrameworkCoreInstrumentation()
+             .AddNpgsql()
              .AddSource(DiagnosticsConfig.ActivitySource.Name)
+             .AddSource(DiagnosticHeaders.DefaultListenerName)
             .AddOtlpExporter(opts =>
             {
                 opts.Endpoint =
