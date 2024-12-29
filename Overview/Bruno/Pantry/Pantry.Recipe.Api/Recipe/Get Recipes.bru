@@ -1,0 +1,15 @@
+meta {
+  name: Get Recipes
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8081/recipes
+  body: none
+  auth: none
+}
+
+headers {
+  UserEMail: {{UserEMail}}
+}

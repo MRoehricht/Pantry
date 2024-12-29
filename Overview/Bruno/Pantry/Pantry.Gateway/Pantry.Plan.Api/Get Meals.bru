@@ -1,0 +1,15 @@
+meta {
+  name: Get Meals
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:8086/meals/
+  body: none
+  auth: none
+}
+
+headers {
+  UserEMail: {{UserEMail}}
+}

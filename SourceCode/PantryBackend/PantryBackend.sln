@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pantry.Services", "Pantry.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pantry.Services.Test", "Pantry.Services.Test\Pantry.Services.Test.csproj", "{083E633E-F4A4-4CE9-A941-98C77142CCD3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pantry.Gateway", "Pantry.Gateway\Pantry.Gateway.csproj", "{E53835A8-1A75-49B1-B51E-28839052F605}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{083E633E-F4A4-4CE9-A941-98C77142CCD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{083E633E-F4A4-4CE9-A941-98C77142CCD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{083E633E-F4A4-4CE9-A941-98C77142CCD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E53835A8-1A75-49B1-B51E-28839052F605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E53835A8-1A75-49B1-B51E-28839052F605}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E53835A8-1A75-49B1-B51E-28839052F605}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E53835A8-1A75-49B1-B51E-28839052F605}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

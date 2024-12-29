@@ -22,6 +22,26 @@ volumes:
     driver: local
 
 services:
+  pantry.gateway:
+    container_name: pantry-gateway
+    image: ${DOCKER_REGISTRY-}pantrygateway
+    build:
+      context: ../Pantry.Gateway/.
+      dockerfile: ../Pantry.Gateway/Dockerfile
+    ports:
+      - 8086:8080  
+    restart: always
+    networks:
+      - pantry-network
+    depends_on:
+      - pantry.recipe.api
+      - pantry.plan.api
+      - pantry.api
+      - pantry.scanner.api
+      - jaeger
+      - prometheus
+      - grafana
+      
   pantry.recipe.api:
     container_name: pantry-recipe-api
     image: ${DOCKER_REGISTRY-}pantryrecipeapi    

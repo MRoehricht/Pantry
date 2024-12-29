@@ -1,0 +1,15 @@
+meta {
+  name: Delete Recipe
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{GatewayUrl}}/recipes/2c60713b-11db-4ca4-84e1-0a2941b506ea
+  body: none
+  auth: none
+}
+
+headers {
+  UserEMail: {{UserEMail}}
+}
