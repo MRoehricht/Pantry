@@ -1,0 +1,15 @@
+meta {
+  name: Delete Recipe
+  type: http
+  seq: 4
+}
+
+delete {
+  url: http://localhost:8081/recipes/1b555f72-d18e-4a05-8c18-948d9be1a68b
+  body: none
+  auth: none
+}
+
+headers {
+  UserEMail: {{UserEMail}}
+}

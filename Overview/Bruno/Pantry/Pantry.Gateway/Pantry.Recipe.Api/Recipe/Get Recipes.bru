@@ -1,0 +1,15 @@
+meta {
+  name: Get Recipes
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{GatewayUrl}}/recipes
+  body: none
+  auth: none
+}
+
+headers {
+  UserEMail: {{UserEMail}}
+}

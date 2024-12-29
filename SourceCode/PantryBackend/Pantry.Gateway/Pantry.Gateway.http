@@ -1,0 +1,6 @@
+@Pantry.Gateway_HostAddress = http://localhost:5134
+
+GET {{Pantry.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
