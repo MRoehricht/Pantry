@@ -14,7 +14,9 @@ struct GoodsView: View {
     var body: some View {
         
         NavigationStack {
-            Text(text)
+            GoodCard(name: "Cashew")
+            GoodCard(name: "Knoblauchzehen")
+            GoodCard(name: "Lauch")
         .navigationTitle("Goods")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -26,6 +28,7 @@ struct GoodsView: View {
         
             .sheet(isPresented: $isShowingScanner) {
                 CodeScannerView(codeTypes: [.ean13, .ean8], scanInterval:1.0, simulatedData: "4058172795664", completion: handleScan)
+                    .presentationDetents([.medium])
                 
             }
         }
