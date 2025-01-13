@@ -10,6 +10,17 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+        <PackageReference Include="OpenIddict.Client" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.Client.AspNetCore" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.Client.SystemNetHttp" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.Client.WebIntegration" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.Core" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.Server.AspNetCore" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="6.0.0" />
+        <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="6.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
         <PackageReference Include="Yarp.ReverseProxy" Version="2.2.0" />
     </ItemGroup>
