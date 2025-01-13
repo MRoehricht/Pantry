@@ -21,6 +21,14 @@ builder.Services.AddPantryAuthentication(builder.Configuration);
 
 var app = builder.Build();
 
+// Create a new application registration matching the values configured in Mimban.Client.
+// Note: in a real world application, this step should be part of a setup script.
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<DbContext>();
+    await context.Database.EnsureCreatedAsync();
+}
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

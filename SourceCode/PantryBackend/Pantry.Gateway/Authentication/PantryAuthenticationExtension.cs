@@ -14,7 +14,8 @@ public static class PantryAuthenticationExtension
         
         services.AddDbContext<DbContext>(options =>
         {
-            options.UseInMemoryDatabase("db");
+            var path = $"Filename={Path.Combine(Path.GetTempPath(), "openiddict-velusia-server.sqlite3")}";
+            options.UseSqlite(path);
             options.UseOpenIddict();
         });
 
