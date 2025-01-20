@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
@@ -11,11 +12,15 @@ using OpenIddict.Client.WebIntegration;
 using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 using Pantry.Api.Authentication;
+using Pantry.Module.Recipe.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+List<Assembly> mediatrAssemblies = [typeof(Program).Assembly];
+builder.AddRecipeModule(mediatrAssemblies);
+
+builder.Services.AddMediatR(c => { c.RegisterServicesFromAssemblies(mediatrAssemblies.ToArray()); });
 
 builder.Services.AddPantryAuthentication(builder.Configuration);
 
@@ -34,6 +39,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGroup("/").AuthenticationEndpoints();
+app.MapRecipeEndpoints();
 
 app.MapReverseProxy();
 app.Run();

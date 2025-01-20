@@ -113,6 +113,7 @@ public class Program
 
 
         var app = builder.Build();
+        
         app.UseOpenTelemetryPrometheusScrapingEndpoint();
         using (var scope = app.Services.CreateScope())
         {
@@ -132,9 +133,7 @@ public class Program
         {
             ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
         });
-        app.MapGroup("/recipes").MapRecipesEndpoint();
-        app.MapGroup("/ingredients").MapIngredientsEndpoint();
-        app.MapGroup("/recipedetails").MapRecipeDetailsEndpoint();
+        
 
         app.Run();
     }
