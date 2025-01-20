@@ -1,17 +1,8 @@
 version: '3.4'
 networks:
-  pantry-recipe-network:
-  pantry-plan-network:
-  pantry-scanner-network:
   pantry-network:
 
 volumes:
-  pantry-recipe-data:
-    driver: local
-  pantry-plan-data:
-    driver: local
-  pantry-scanner-data:
-    driver: local
   pantry-data:
     driver: local
   rabbitmq-data:
@@ -21,129 +12,7 @@ volumes:
   grafana_data:
     driver: local
 
-services:
-  pantry.gateway:
-    container_name: pantry-gateway
-    image: ${DOCKER_REGISTRY-}pantrygateway
-    build:
-      context: ../Pantry.Gateway/.
-      dockerfile: ../Pantry.Gateway/Dockerfile
-    ports:
-      - 8086:8080  
-    restart: always
-    networks:
-      - pantry-network
-    depends_on:
-      - pantry.recipe.api
-      - pantry.plan.api
-      - pantry.api
-      - pantry.scanner.api
-      - jaeger
-      - prometheus
-      - grafana
-      
-  pantry.recipe.api:
-    container_name: pantry-recipe-api
-    image: ${DOCKER_REGISTRY-}pantryrecipeapi    
-    build:
-      context: ../Pantry.Recipe.Api/.
-      dockerfile: ../Pantry.Recipe.Api/Dockerfile
-    ports:
-      - 8081:8080
-    environment:
-      - DB_HOST=pantry.recipe.postgres
-      - DB_PORT=5432
-      - DB_DB=pantry
-      - DB_USER=pantry
-      - DB_PASSWORD=pantry
-      - RABBITMQ__HOST=rabbitmq
-      - RABBITMQ__PORT=5672
-      - RABBITMQ__USER=pantry
-      - RABBITMQ__PASSWORD=pantry
-      - RABBITMQ__QUEUENAME=Pantry.Recipe.Api
-      - ALLOWED_ORIGINS="http://localhost:5173"
-      - JAEGER__PROTOCOL=http
-      - JAEGER__HOST=jaeger
-      - JAEGER__PORT=4317
-    restart: always
-    networks:
-      - pantry-recipe-network   
-      - pantry-network
-    depends_on:
-      - pantry.recipe.postgres
-      - rabbitmq
-
-  pantry.recipe.postgres:
-    container_name: pantry-recipe-postgres
-    image: postgres:latest
-    volumes:
-      - pantry-recipe-data:/var/lib/postgresql/data
-    ports:
-      - 5431:5432
-    restart: always
-    environment:
-      - POSTGRES_USER=pantry
-      - POSTGRES_PASSWORD=pantry
-      - POSTGRES_DB=pantry
-    networks:
-      - pantry-recipe-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pantry -d pantry"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  pantry.plan.api:    
-    container_name: pantry-plan-api
-    image: ${DOCKER_REGISTRY-}pantryplanapi
-    build:
-      context: ../Pantry.Plan.Api/.
-      dockerfile: ../Pantry.Plan.Api/Dockerfile
-    ports:
-      - 8082:8080
-    environment:
-      - DB_HOST=pantry.plan.postgres
-      - DB_PORT=5432
-      - DB_DB=pantry
-      - DB_USER=pantry
-      - DB_PASSWORD=pantry
-      - RABBITMQ__HOST=rabbitmq
-      - RABBITMQ__PORT=5672
-      - RABBITMQ__USER=pantry
-      - RABBITMQ__PASSWORD=pantry
-      - RABBITMQ__QUEUENAME=Pantry.Plan.Api
-      - ALLOWED_ORIGINS="http://localhost:5173"
-      - JAEGER__PROTOCOL=http
-      - JAEGER__HOST=jaeger
-      - JAEGER__PORT=4317
-    restart: always
-    networks:
-      - pantry-plan-network
-      - pantry-network
-    depends_on:
-      - pantry.plan.postgres
-      - rabbitmq
-
-  pantry.plan.postgres:
-    container_name: pantry-plan-postgres
-    image: postgres:latest
-    volumes:
-      - pantry-plan-data:/var/lib/postgresql/data
-    ports:
-      - 5433:5432
-    restart: always
-    environment:
-      - POSTGRES_USER=pantry
-      - POSTGRES_PASSWORD=pantry
-      - POSTGRES_DB=pantry
-    networks:
-      - pantry-plan-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pantry -d pantry"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
+services: 
   pantry.api:    
     container_name: pantry-api
     image: ${DOCKER_REGISTRY-}pantryapi
@@ -176,7 +45,7 @@ services:
 
   pantry.postgres:
     container_name: pantry-postgres
-    image: postgres:latest
+    image: postgres:17.0
     volumes:
       - pantry-data:/var/lib/postgresql/data
     ports:
@@ -192,52 +61,8 @@ services:
       test: ["CMD-SHELL", "pg_isready -U pantry -d pantry"]
       interval: 5s
       timeout: 5s
-      retries: 5
-      
-  pantry.scanner.api:    
-    container_name: pantry-scanner-api
-    image: ${DOCKER_REGISTRY-}pantryscannerapi
-    build:
-      context: ../Pantry.Scanner.Api/.
-      dockerfile: ../Pantry.Scanner.Api/Dockerfile
-    ports:
-      - 8084:8080
-      - 8085:8081
-    environment:
-      - DB_HOST=pantry.scanner.postgres
-      - DB_PORT=5432
-      - DB_DB=pantry
-      - DB_USER=pantry
-      - DB_PASSWORD=pantry
-      - ALLOWED_ORIGINS="http://localhost:5173"
-    restart: always
-    networks:
-      - pantry-scanner-network
-      - pantry-network
-    depends_on:
-      - pantry.scanner.postgres
-      - rabbitmq 
-
-  pantry.scanner.postgres:
-    container_name: pantry-scanner-postgres
-    image: postgres:latest
-    volumes:
-      - pantry-scanner-data:/var/lib/postgresql/data
-    ports:
-      - 5435:5432
-    restart: always
-    environment:
-      - POSTGRES_USER=pantry
-      - POSTGRES_PASSWORD=pantry
-      - POSTGRES_DB=pantry
-    networks:
-      - pantry-scanner-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pantry -d pantry"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
+      retries: 5      
+ 
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
@@ -279,55 +104,6 @@ services:
     networks:
       - pantry-network
     restart: always
-
-#  node-exporter:
-#    image: prom/node-exporter
-#    container_name: node-exporter
-#    volumes:
-#      - /proc:/host/proc:ro
-#      - /sys:/host/sys:ro
-#      - /:/rootfs:ro
-#    command: 
-#      - '--path.procfs=/host/proc' 
-#      - '--path.sysfs=/host/sys'
-#      - --collector.filesystem.ignored-mount-points
-#      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
-#    ports:
-#      - 9100:9100
-#    networks:
-#      - pantry-network
-#    restart: always
-#    deploy:
-#      mode: global
-
-#  alertmanager:
-#    image: prom/alertmanager
-#    ports:
-#      - 9093:9093
-#    volumes:
-#      - ./alertmanager/:/etc/alertmanager/
-#    networks:
-#      - pantry-network
-#    restart: always
-#    command:
-#      - '--config.file=/etc/alertmanager/config.yml'
-#      - '--storage.path=/alertmanager'
-
-#  cadvisor:
-#    image: gcr.io/cadvisor/cadvisor
-#    container_name: cadvisor
-#    volumes:
-#      - /:/rootfs:ro
-#      - /var/run:/var/run:rw
-#      - /sys:/sys:ro
-#      - /var/lib/docker/:/var/lib/docker:ro
-#    ports:
-#      - 8080:8080
-#    networks:
-#      - pantry-network
-#    restart: always
-#    deploy:
-#      mode: global
 
   grafana:
     image: grafana/grafana
