@@ -33,4 +33,12 @@
         <ProjectReference Include="..\Pantry.Module.Shared\Pantry.Module.Shared.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageVersion Update="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
+      <PackageVersion Update="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageVersion>
+    </ItemGroup>
+
 </Project>

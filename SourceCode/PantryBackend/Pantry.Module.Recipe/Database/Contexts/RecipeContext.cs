@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Pantry.Module.Recipe.Database.Entities;
 
 namespace Pantry.Module.Recipe.Database.Contexts;
@@ -16,7 +17,6 @@ public class RecipeContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<RecipeEntity>().OwnsMany(e => e.Ingredients, b => { b.ToJson(); });
-        modelBuilder.Entity<RecipeEntity>().OwnsOne(e => e.Details, b => { b.ToJson(); });
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(RecipeContext).Assembly);
     }
 }

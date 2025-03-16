@@ -1,5 +1,6 @@
 ﻿using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Pantry.Module.Plan.Database.Contexts;
 using Pantry.Module.Shared.Models.MessageModes;
 

@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pantry.Module.Authenticatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pantry.Module.Scanner.Tests", "Pantry.Module.Scanner.Tests\Pantry.Module.Scanner.Tests.csproj", "{96062881-25AE-4B5A-BA38-30F04B5516BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pantry.Module.Recipe.IntegrationTests", "Pantry.Module.Recipe.IntegrationTests\Pantry.Module.Recipe.IntegrationTests.csproj", "{C56FF4F7-9878-46B2-BE6B-DC72357AA6DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{96062881-25AE-4B5A-BA38-30F04B5516BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96062881-25AE-4B5A-BA38-30F04B5516BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96062881-25AE-4B5A-BA38-30F04B5516BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C56FF4F7-9878-46B2-BE6B-DC72357AA6DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C56FF4F7-9878-46B2-BE6B-DC72357AA6DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C56FF4F7-9878-46B2-BE6B-DC72357AA6DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C56FF4F7-9878-46B2-BE6B-DC72357AA6DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,5 +104,6 @@ Global
 		{E91649B5-632E-4B35-A091-DD63903ED337} = {5FE0CE95-BC3F-48A7-B085-1A6EC7E1E268}
 		{B0F777CE-1B76-47C1-B8A3-BD9A9FBA8DC6} = {E91649B5-632E-4B35-A091-DD63903ED337}
 		{96062881-25AE-4B5A-BA38-30F04B5516BB} = {BF239647-1199-4D6D-A6B5-E3632E41073E}
+		{C56FF4F7-9878-46B2-BE6B-DC72357AA6DB} = {FA3776BD-9114-4365-B30C-E05D56282DC2}
 	EndGlobalSection
 EndGlobal

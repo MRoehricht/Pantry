@@ -1,4 +1,6 @@
-﻿namespace Pantry.Module.Scanner.EanServices.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+namespace Pantry.Module.Scanner.EanServices.DependencyInjection;
 public static class EanServicesCollectionExtension
 {
     public static IServiceCollection AddEanServices(this IServiceCollection services)

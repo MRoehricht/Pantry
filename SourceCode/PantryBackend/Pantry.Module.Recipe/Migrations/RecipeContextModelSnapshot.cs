@@ -9,7 +9,7 @@ using Pantry.Module.Recipe.Database.Contexts;
 
 #nullable disable
 
-namespace Pantry.Recipe.Api.Migrations
+namespace Pantry.Module.Recipe.Migrations
 {
     [DbContext(typeof(RecipeContext))]
     partial class RecipeContextModelSnapshot : ModelSnapshot
@@ -18,7 +18,7 @@ namespace Pantry.Recipe.Api.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -45,7 +45,7 @@ namespace Pantry.Recipe.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Recipes");
+                    b.ToTable("Recipes", "recipes");
                 });
 
             modelBuilder.Entity("Pantry.Module.Recipe.Database.Entities.RecipeEntity", b =>
@@ -55,7 +55,7 @@ namespace Pantry.Recipe.Api.Migrations
                             b1.Property<Guid>("RecipeEntityId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<int>("Id")
+                            b1.Property<int>("__synthesizedOrdinal")
                                 .ValueGeneratedOnAdd()
                                 .HasColumnType("integer");
 
@@ -72,9 +72,9 @@ namespace Pantry.Recipe.Api.Migrations
                             b1.Property<int>("Unit")
                                 .HasColumnType("integer");
 
-                            b1.HasKey("RecipeEntityId", "Id");
+                            b1.HasKey("RecipeEntityId", "__synthesizedOrdinal");
 
-                            b1.ToTable("Recipes");
+                            b1.ToTable("Recipes", "recipes");
 
                             b1.ToJson("Ingredients");
 
@@ -87,21 +87,21 @@ namespace Pantry.Recipe.Api.Migrations
                             b1.Property<Guid>("RecipeEntityId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<List<DateOnly>>("CookedOn")
+                            b1.PrimitiveCollection<List<DateOnly>>("CookedOn")
                                 .IsRequired()
                                 .HasColumnType("date[]");
 
-                            b1.Property<List<int>>("Reviews")
+                            b1.PrimitiveCollection<List<int>>("Reviews")
                                 .IsRequired()
                                 .HasColumnType("integer[]");
 
-                            b1.Property<List<string>>("Tags")
+                            b1.PrimitiveCollection<List<string>>("Tags")
                                 .IsRequired()
                                 .HasColumnType("text[]");
 
                             b1.HasKey("RecipeEntityId");
 
-                            b1.ToTable("Recipes");
+                            b1.ToTable("Recipes", "recipes");
 
                             b1.ToJson("Details");
 

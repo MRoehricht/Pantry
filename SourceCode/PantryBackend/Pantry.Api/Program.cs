@@ -1,46 +1,50 @@
 using System.Reflection;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using OpenIddict.Abstractions;
-using OpenIddict.Client.WebIntegration;
-using OpenIddict.Server.AspNetCore;
-using OpenIddict.Validation.AspNetCore;
 using Pantry.Api.Authentication;
+using Pantry.Module.Authentication.UserServices;
+using Pantry.Module.Recipe.Database.Contexts;
 using Pantry.Module.Recipe.Extensions;
+using Scalar.AspNetCore;
+using Wolverine;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+builder.Host.UseWolverine(o =>
+{
+    o.Durability.Mode = DurabilityMode.MediatorOnly;
+});
 
 List<Assembly> mediatrAssemblies = [typeof(Program).Assembly];
 builder.AddRecipeModule(mediatrAssemblies);
 
 builder.Services.AddMediatR(c => { c.RegisterServicesFromAssemblies(mediatrAssemblies.ToArray()); });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddTransient<IHeaderEMailService, HeaderEMailService>();
 
 builder.Services.AddPantryAuthentication(builder.Configuration);
 
 var app = builder.Build();
 
-// Create a new application registration matching the values configured in Mimban.Client.
-// Note: in a real world application, this step should be part of a setup script.
-await using (var scope = app.Services.CreateAsyncScope())
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-    var context = scope.ServiceProvider.GetRequiredService<DbContext>();
-    await context.Database.EnsureCreatedAsync();
+    app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+// app.UseHttpsRedirection();
+// app.UseAuthentication();
+// app.UseAuthorization();
 
-app.MapGroup("/").AuthenticationEndpoints();
+//app.MapGroup("/").AuthenticationEndpoints();
+
 app.MapRecipeEndpoints();
 
-app.MapReverseProxy();
+
 app.Run();
 
+public partial class Program { }

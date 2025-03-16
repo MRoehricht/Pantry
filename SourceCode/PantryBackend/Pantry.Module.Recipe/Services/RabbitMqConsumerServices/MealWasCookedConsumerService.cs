@@ -1,15 +1,21 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Logging;
 using Pantry.Module.Recipe.Configuration;
 using Pantry.Module.Recipe.Database.Contexts;
 using Pantry.Module.Shared.Models.MessageModes;
 
 namespace Pantry.Module.Recipe.Services.RabbitMqConsumerServices;
 
-public class MealWasCookedConsumerService(ILoggerFactory loggerFactory, RecipeContext recipeContext, IPublishEndpoint publishEndpoint) : IConsumer<MealWasCookedMessage>
+public class MealWasCookedConsumerService(
+    ILoggerFactory loggerFactory,
+    RecipeContext recipeContext,
+    IPublishEndpoint publishEndpoint) : IConsumer<MealWasCookedMessage>
 {
-    private readonly RecipeContext _recipeContext = recipeContext;
+    private readonly ILogger<MealWasCookedConsumerService> _logger =
+        loggerFactory.CreateLogger<MealWasCookedConsumerService>();
+
     private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
-    private readonly ILogger<MealWasCookedConsumerService> _logger = loggerFactory.CreateLogger<MealWasCookedConsumerService>();
+    private readonly RecipeContext _recipeContext = recipeContext;
 
     public async Task Consume(ConsumeContext<MealWasCookedMessage> context)
     {
@@ -23,9 +29,8 @@ public class MealWasCookedConsumerService(ILoggerFactory loggerFactory, RecipeCo
                 recipe.Details.CookedOn.Add(DateOnly.FromDateTime(DateTime.Now));
                 await _recipeContext.SaveChangesAsync();
                 foreach (var ingredientEntity in recipe.Ingredients)
-                {
-                    await _publishEndpoint.Publish(new MinimizeGoodsQuantityMessage { Ingredient = mapper.MapToIngredient(ingredientEntity) });
-                }
+                    await _publishEndpoint.Publish(new MinimizeGoodsQuantityMessage
+                        { Ingredient = mapper.MapToIngredient(ingredientEntity) });
             }
         }
         catch (Exception ex)

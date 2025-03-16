@@ -1,0 +1,46 @@
+version: '3.4'
+networks:
+  pantry-network:
+
+volumes:
+  pantry-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+
+services: 
+  pantry.postgres:
+    container_name: pantry-postgres
+    image: postgres:17.0
+    volumes:
+      - pantry-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=pantry
+      - POSTGRES_PASSWORD=pantry
+      - POSTGRES_DB=pantry
+    networks:
+      - pantry-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pantry -d pantry"]
+      interval: 5s
+      timeout: 5s
+      retries: 5      
+ 
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672 #http://localhost:15672/#/
+    environment:
+      - RABBITMQ_DEFAULT_USER=pantry
+      - RABBITMQ_DEFAULT_PASS=pantry
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq/
+      - rabbitmq-data:/var/log/rabbitmq
+    networks:
+      - pantry-network
+

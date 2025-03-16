@@ -1,4 +1,7 @@
-﻿using Pantry.Module.Authentication.UserServices;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Pantry.Module.Authentication.UserServices;
 using Pantry.Module.Recipe.Configuration;
 using Pantry.Module.Recipe.Database.Contexts;
 using Pantry.Module.Shared.Models.RecipeModels;
@@ -9,20 +12,27 @@ public static class RecipeDetailsEndpoint
 {
     public static RouteGroupBuilder MapRecipeDetailsEndpoint(this RouteGroupBuilder group)
     {
-        group.MapGet("/{recipeId}", GetRecipeDetails).WithName("GetRecipeDetails").Produces<RecipeDetails>().Produces(StatusCodes.Status404NotFound).WithOpenApi();
-        group.MapPost("/review/{recipeId}", CreateReview).WithName("CreateReview").Produces<RecipeDetails>(StatusCodes.Status201Created).WithOpenApi();
-        group.MapPost("/cookedon/{recipeId}", CreateCookedOn).WithName("CreateCookedOn").Produces<RecipeDetails>(StatusCodes.Status201Created).WithOpenApi();
+        group.MapGet("/{recipeId}", GetRecipeDetails).WithName("GetRecipeDetails").Produces<RecipeDetails>()
+            .Produces(StatusCodes.Status404NotFound).WithOpenApi();
+        group.MapPost("/review/{recipeId}", CreateReview).WithName("CreateReview")
+            .Produces<RecipeDetails>(StatusCodes.Status201Created).WithOpenApi();
+        group.MapPost("/cookedon/{recipeId}", CreateCookedOn).WithName("CreateCookedOn")
+            .Produces<RecipeDetails>(StatusCodes.Status201Created).WithOpenApi();
 
-        group.MapPost("/tag/{recipeId}", CreateTag).WithName("CreateTag").Produces<RecipeDetails>(StatusCodes.Status201Created).Produces(StatusCodes.Status404NotFound).WithOpenApi();
-        group.MapDelete("/tag/{recipeId}/{tag}", DeleteTag).WithName("DeleteTag").Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound).WithOpenApi();
+        group.MapPost("/tag/{recipeId}", CreateTag).WithName("CreateTag")
+            .Produces<RecipeDetails>(StatusCodes.Status201Created).Produces(StatusCodes.Status404NotFound)
+            .WithOpenApi();
+        group.MapDelete("/tag/{recipeId}/{tag}", DeleteTag).WithName("DeleteTag")
+            .Produces(StatusCodes.Status204NoContent).Produces(StatusCodes.Status404NotFound).WithOpenApi();
 
         return group;
     }
 
-    private static async Task<IResult> DeleteTag(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string tag)
+    private static async Task<IResult> DeleteTag(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId,
+        string tag)
     {
         var eMail = eMailService.GetHeaderEMail();
-        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        if (string.IsNullOrEmpty(eMail)) return Results.Unauthorized();
 
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail && recipe.Details.Tags.Contains(tag))
@@ -32,13 +42,15 @@ public static class RecipeDetailsEndpoint
 
             return Results.NoContent();
         }
+
         return Results.NotFound();
     }
 
-    private static async Task<IResult> CreateTag(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, string tag)
+    private static async Task<IResult> CreateTag(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId,
+        string tag)
     {
         var eMail = eMailService.GetHeaderEMail();
-        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        if (string.IsNullOrEmpty(eMail)) return Results.Unauthorized();
 
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail)
@@ -49,13 +61,15 @@ public static class RecipeDetailsEndpoint
             var mapper = new RecipeMapper();
             return Results.Created($"/recipedetails/{recipe.Id}", mapper.MapToRecipeDetails(recipe.Details));
         }
+
         return Results.NotFound();
     }
 
-    private static async Task<IResult> CreateReview(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, int review)
+    private static async Task<IResult> CreateReview(IHeaderEMailService eMailService, RecipeContext context,
+        Guid recipeId, int review)
     {
         var eMail = eMailService.GetHeaderEMail();
-        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        if (string.IsNullOrEmpty(eMail)) return Results.Unauthorized();
 
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail)
@@ -65,13 +79,15 @@ public static class RecipeDetailsEndpoint
             var mapper = new RecipeMapper();
             return Results.Created($"/recipedetails/{recipe.Id}", mapper.MapToRecipeDetails(recipe.Details));
         }
+
         return Results.NotFound();
     }
 
-    private static async Task<IResult> CreateCookedOn(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId, DateOnly date)
+    private static async Task<IResult> CreateCookedOn(IHeaderEMailService eMailService, RecipeContext context,
+        Guid recipeId, DateOnly date)
     {
         var eMail = eMailService.GetHeaderEMail();
-        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        if (string.IsNullOrEmpty(eMail)) return Results.Unauthorized();
 
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail)
@@ -81,13 +97,15 @@ public static class RecipeDetailsEndpoint
             var mapper = new RecipeMapper();
             return Results.Created($"/recipedetails/{recipe.Id}", mapper.MapToRecipeDetails(recipe.Details));
         }
+
         return Results.NotFound();
     }
 
-    private static async Task<IResult> GetRecipeDetails(IHeaderEMailService eMailService, RecipeContext context, Guid recipeId)
+    private static async Task<IResult> GetRecipeDetails(IHeaderEMailService eMailService, RecipeContext context,
+        Guid recipeId)
     {
         var eMail = eMailService.GetHeaderEMail();
-        if (string.IsNullOrEmpty(eMail)) { return Results.Unauthorized(); }
+        if (string.IsNullOrEmpty(eMail)) return Results.Unauthorized();
 
         var recipe = await context.Recipes.FindAsync(recipeId);
         if (recipe != null && recipe.Owner == eMail)
@@ -95,6 +113,7 @@ public static class RecipeDetailsEndpoint
             var mapper = new RecipeMapper();
             return Results.Ok(mapper.MapToRecipeDetails(recipe.Details));
         }
+
         return Results.NotFound();
     }
 }

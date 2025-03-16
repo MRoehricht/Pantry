@@ -6,8 +6,11 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="OpenIddict.Client" Version="6.0.0" />
         <PackageReference Include="OpenIddict.Client.AspNetCore" Version="6.0.0" />
         <PackageReference Include="OpenIddict.Client.SystemNetHttp" Version="6.0.0" />
@@ -17,8 +20,7 @@
         <PackageReference Include="OpenIddict.Server.AspNetCore" Version="6.0.0" />
         <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="6.0.0" />
         <PackageReference Include="OpenIddict.Validation.ServerIntegration" Version="6.0.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
-        <PackageReference Include="Yarp.ReverseProxy" Version="2.2.0" />
+        <PackageReference Include="Scalar.AspNetCore" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,6 +31,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Pantry.Module.Recipe\Pantry.Module.Recipe.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageVersion Update="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
+      <PackageVersion Update="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.2" />
     </ItemGroup>
 
 </Project>

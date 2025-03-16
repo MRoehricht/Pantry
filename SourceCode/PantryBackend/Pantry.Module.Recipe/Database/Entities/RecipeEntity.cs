@@ -1,4 +1,6 @@
-﻿namespace Pantry.Module.Recipe.Database.Entities;
+﻿using Pantry.Module.Shared.Database;
+
+namespace Pantry.Module.Recipe.Database.Entities;
 
 public class RecipeEntity : EntityBase
 {

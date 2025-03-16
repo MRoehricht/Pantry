@@ -1,13 +1,17 @@
 ﻿using MassTransit;
+using Microsoft.Extensions.Logging;
 using Pantry.Module.Recipe.Database.Contexts;
 using Pantry.Module.Shared.Models.MessageModes;
 
 namespace Pantry.Module.Recipe.Services.RabbitMqConsumerServices;
 
-public class UpdateIngredientNameConsumerService(ILoggerFactory loggerFactory, RecipeContext recipeContext) : IConsumer<UpdateIngredientNameMessage>
+public class UpdateIngredientNameConsumerService(ILoggerFactory loggerFactory, RecipeContext recipeContext)
+    : IConsumer<UpdateIngredientNameMessage>
 {
+    private readonly ILogger<UpdateIngredientNameConsumerService> _logger =
+        loggerFactory.CreateLogger<UpdateIngredientNameConsumerService>();
+
     private readonly RecipeContext _recipeContext = recipeContext;
-    private readonly ILogger<UpdateIngredientNameConsumerService> _logger = loggerFactory.CreateLogger<UpdateIngredientNameConsumerService>();
 
     public async Task Consume(ConsumeContext<UpdateIngredientNameMessage> context)
     {
@@ -18,7 +22,8 @@ public class UpdateIngredientNameConsumerService(ILoggerFactory loggerFactory, R
         }
 
 
-        if (context.Message.Ingredient.PantryItemId == Guid.Empty || string.IsNullOrWhiteSpace(context.Message.Ingredient.Name))
+        if (context.Message.Ingredient.PantryItemId == Guid.Empty ||
+            string.IsNullOrWhiteSpace(context.Message.Ingredient.Name))
         {
             _logger.LogError("PantryItemId is nich gültig");
             return;
@@ -29,23 +34,18 @@ public class UpdateIngredientNameConsumerService(ILoggerFactory loggerFactory, R
             _logger.LogError("Name is nich gültig");
             return;
         }
+
         try
         {
-
             foreach (var recipe in _recipeContext.Recipes.Where(e => e.Owner == context.Message.Owner))
-            {
-                foreach (var ingredientItem in recipe.Ingredients)
+            foreach (var ingredientItem in recipe.Ingredients)
+                if (ingredientItem.PantryItemId == context.Message.Ingredient.PantryItemId)
                 {
-                    if (ingredientItem.PantryItemId == context.Message.Ingredient.PantryItemId)
-                    {
-                        ingredientItem.Name = context.Message.Ingredient.Name;
-                        ingredientItem.Unit = context.Message.Ingredient.Unit;
-                    }
+                    ingredientItem.Name = context.Message.Ingredient.Name;
+                    ingredientItem.Unit = context.Message.Ingredient.Unit;
                 }
-            }
 
             await _recipeContext.SaveChangesAsync();
-
         }
         catch (Exception ex)
         {
