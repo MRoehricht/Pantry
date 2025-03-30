@@ -19,11 +19,11 @@ struct ContentView: View {
                 .tabItem {
                     Label("Plan", systemImage: "calendar")
                 }
-            BlankPage()
+            RecipeView()
                 .tabItem {
                     Label("Recipes", systemImage: "book.pages")
                 }
-            BlankPage()
+            MenuView()
                 .tabItem {
                     Label("Menu", systemImage: "list.dash")
                 }

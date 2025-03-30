@@ -28,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8C34D2372D99760500CB2B02 /* Pantry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Pantry.xcodeproj; sourceTree = "<group>"; };
 		8C76F2402D29D1E1001E563D /* Pantry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Pantry.xcodeproj; sourceTree = "<group>"; };
 		8CD0F3C72D21E3F4006BCBF5 /* Pantry.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pantry.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8CD0F3D92D21E3F5006BCBF5 /* PantryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PantryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -35,9 +36,22 @@
 		8CDF4D4A2D28A7E900E2B4D2 /* Pantry.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Pantry.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8CF150612D99E4FC00E8D63E /* Exceptions for "Pantry" folder in "Pantry" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8CD0F3C62D21E3F4006BCBF5 /* Pantry */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8CD0F3C92D21E3F4006BCBF5 /* Pantry */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8CF150612D99E4FC00E8D63E /* Exceptions for "Pantry" folder in "Pantry" target */,
+			);
 			path = Pantry;
 			sourceTree = "<group>";
 		};
@@ -79,6 +93,11 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		8C34D2392D99760500CB2B02 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 		8C76F2422D29D1E1001E563D /* Products */ = {
 			isa = PBXGroup;
 			name = Products;
@@ -223,6 +242,10 @@
 				{
 					ProductGroup = 8C76F2422D29D1E1001E563D /* Products */;
 					ProjectRef = 8C76F2402D29D1E1001E563D /* Pantry.xcodeproj */;
+				},
+				{
+					ProductGroup = 8C34D2392D99760500CB2B02 /* Products */;
+					ProjectRef = 8C34D2372D99760500CB2B02 /* Pantry.xcodeproj */;
 				},
 				{
 					ProductGroup = 8CDF4D4C2D28A7E900E2B4D2 /* Products */;
@@ -424,12 +447,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pantry/Pantry.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pantry/Preview Content\"";
 				DEVELOPMENT_TEAM = S2NV26KDDF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Pantry/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Die Kamera wird benötigt um die Barcodes zu scannen";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -443,6 +469,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.reedsoft.Pantry;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -454,12 +481,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Pantry/Pantry.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Pantry/Preview Content\"";
 				DEVELOPMENT_TEAM = S2NV26KDDF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Pantry/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Die Kamera wird benötigt um die Barcodes zu scannen";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -473,6 +503,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = de.reedsoft.Pantry;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
