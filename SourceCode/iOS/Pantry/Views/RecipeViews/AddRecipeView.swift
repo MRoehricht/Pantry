@@ -10,6 +10,7 @@ import SwiftData
 
 struct AddRecipeView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.presentationMode) private var presentationMode
     @State private var recipeName: String = ""
     @State private var ingredients: [Ingredient] = []
     @State private var ingredientName: String = ""
@@ -39,12 +40,6 @@ struct AddRecipeView: View {
                 }
             }
             Section(header: Text("Bild")) {
-                if let selectedImage = selectedImage {
-                    Image(uiImage: selectedImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 200)
-                }
                 Button(action: {
                     showImagePicker = true
                 }) {
@@ -75,6 +70,7 @@ struct AddRecipeView: View {
         recipeName = ""
         ingredients = []
         selectedImage = nil
+        presentationMode.wrappedValue.dismiss()
     }
 }
 

@@ -18,8 +18,16 @@ struct RecipeCardView: View {
                     .scaledToFill()
                     .frame(height: 200)
                     .clipped()
+            } else {
+                Image("dummy_recipe")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(height: 200)
+                    .clipped()
+                    .opacity(0.7)
             }
-            Text(recipe.name ?? "Kennt kein Name")
+            
+            Text(recipe.name)
                 .font(.headline)
                 .padding([.leading, .bottom, .trailing])
         }

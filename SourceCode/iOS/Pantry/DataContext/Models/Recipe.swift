@@ -14,12 +14,14 @@ class Recipe {
     var name: String = "kein Name"
     var ingredients: [Ingredient]? = []
     var imageData: Data?
+    var tags: [String] = []
 
-    init(name: String? = nil, ingredients: [Ingredient]? = nil, imageData: Data? = nil) {
+    init(name: String? = nil, ingredients: [Ingredient]? = nil,tags: [String]? = nil, imageData: Data? = nil) {
         self.id = UUID()
         self.name = name ?? "kein Name"
         self.ingredients = ingredients ?? []
         self.imageData = imageData
+        self.tags = tags ?? []
     }
 }
 

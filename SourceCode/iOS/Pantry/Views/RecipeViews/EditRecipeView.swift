@@ -14,7 +14,19 @@ struct EditRecipeView: View {
     @State private var ingredientQuantity: String = ""
     @State private var selectedImage: UIImage?
     @State private var showImagePicker: Bool = false
+    @State private var showDeleteConfirmation: Bool = false
+    @State private var newTag: String = ""
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.presentationMode) private var presentationMode
+    @Query private var allRecipes: [Recipe]
+
+    var allTags: [String] {
+        Set(allRecipes.flatMap { $0.tags }).sorted()
+    }
+
+    var filteredTags: [String] {
+        allTags.filter { $0.lowercased().contains(newTag.lowercased()) && !newTag.isEmpty }
+    }
 
     var body: some View {
         Form {
@@ -44,27 +56,65 @@ struct EditRecipeView: View {
                     }
                 }
             }
-            Section(header: Text("Bild")) {
+            Section(header: Text("Tags")) {
                 HStack {
-                    Spacer()
-                    if let imageData = recipe.imageData, let uiImage = UIImage(data: imageData) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 200)
+                    TextField("Neuer Tag", text: $newTag)
+                    Button(action: addTag) {
+                        Text("Hinzufügen")
                     }
-                    Spacer()
                 }
+                if !filteredTags.isEmpty {
+                    VStack(alignment: .leading) {
+                        Text("Vorschläge:")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                        List(filteredTags, id: \.self) { tag in
+                            Text(tag)
+                                .onTapGesture {
+                                    newTag = tag
+                                    addTag()
+                                }
+                        }
+                        .frame(maxHeight: 100)
+                        .border(Color.gray, width: 1)
+                    }
+                }
+                List {
+                    ForEach(recipe.tags, id: \.self) { tag in
+                        Text(tag)
+                    }
+                    .onDelete(perform: deleteTag)
+                }
+            }
+            Section(header: Text("Bild")) {
                 Button(action: {
                     showImagePicker = true
                 }) {
                     Text("Bild auswählen")
                 }
             }
+            Section {
+                Button(action: {
+                    showDeleteConfirmation = true
+                }) {
+                    Text("Rezept löschen")
+                        .foregroundColor(.red)
+                }
+            }
         }
         .navigationTitle("Rezept bearbeiten")
         .sheet(isPresented: $showImagePicker) {
             ImagePicker(image: $selectedImage)
+        }
+        .alert(isPresented: $showDeleteConfirmation) {
+            Alert(
+                title: Text("Rezept löschen"),
+                message: Text("Möchten Sie dieses Rezept wirklich löschen?"),
+                primaryButton: .destructive(Text("Löschen")) {
+                    deleteRecipe()
+                },
+                secondaryButton: .cancel()
+            )
         }
         .onChange(of: selectedImage) { newImage in
             if let newImage = newImage {
@@ -83,12 +133,33 @@ struct EditRecipeView: View {
         ingredientQuantity = ""
     }
 
+    private func addTag() {
+        if !newTag.isEmpty && !recipe.tags.contains(newTag) {
+                    recipe.tags.append(newTag)
+                    newTag = ""
+                }
+    }
+    
+    private func deleteTag(at offsets: IndexSet) {
+            recipe.tags.remove(atOffsets: offsets)
+        }
+
     private func saveRecipe() {
         recipe.ingredients?.removeAll { $0.name.isEmpty && $0.quantity.isEmpty }
         do {
             try modelContext.save()
         } catch {
             print("Failed to save recipe: \(error)")
+        }
+    }
+
+    private func deleteRecipe() {
+        modelContext.delete(recipe)
+        do {
+            try modelContext.save()
+            presentationMode.wrappedValue.dismiss()
+        } catch {
+            print("Failed to delete recipe: \(error)")
         }
     }
 }
